@@ -10,10 +10,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 export default function Login() {
-    const [data, setData] = useState([]); // 사용자 데이터 상태
+    const [data, setData] = useState<
+        Array<{ id: string; [key: string]: string }>
+    >([]);
     const [id, setId] = useState(''); // 입력된 ID
     const [password, setPassword] = useState(''); // 입력된 패스워드
-    const [message, setMessage] = useState(''); // 로그인 결과 메시지
 
     // Firestore에서 데이터 가져오기
     const fetchData = async () => {
@@ -33,7 +34,7 @@ export default function Login() {
 
     useEffect(() => {
         fetchData();
-    }, [message]);
+    });
 
     // 로그인 처리 함수
     const handleLogin = () => {
@@ -42,9 +43,10 @@ export default function Login() {
         );
 
         if (user) {
-            setMessage(user.branch); // 성공 메시지 설정
+            // 성공 메시지
+            alert('로그인에 성공하였습니다');
         } else {
-            setMessage('로그인 실패! 아이디 또는 비밀번호를 확인하세요.'); // 실패 메시지 설정
+            alert('로그인에 실패했습니다!\n아이디 또는 비밀번호를 확인하세요.');
         }
     };
 
@@ -57,7 +59,7 @@ export default function Login() {
                 height={200}
                 className="mb-8"
             />
-            <form onSubmit={handleLogin} className="w-full max-w-md space-y-4">
+            <div className="w-full max-w-md space-y-4">
                 <div>
                     <Label htmlFor="id">아이디</Label>
                     <Input
@@ -78,7 +80,12 @@ export default function Login() {
                     />
                 </div>
                 <div className="flex justify-between">
-                    <Button type="submit" variant="outline" className="w-[48%]">
+                    <Button
+                        type="submit"
+                        variant="outline"
+                        className="w-[48%]"
+                        onClick={handleLogin}
+                    >
                         로그인
                     </Button>
                     <Link href="/signup" className="w-[48%]">
@@ -87,8 +94,7 @@ export default function Login() {
                         </Button>
                     </Link>
                 </div>
-                <p>{message}</p>
-            </form>
+            </div>
         </div>
     );
 }
