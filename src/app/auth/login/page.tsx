@@ -33,7 +33,7 @@ export default function Login() {
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [message]);
 
     // 로그인 처리 함수
     const handleLogin = () => {
@@ -78,7 +78,7 @@ export default function Login() {
                     />
                 </div>
                 <div className="flex justify-between">
-                    <Button type="submit" className="w-[48%]">
+                    <Button type="submit" variant="outline" className="w-[48%]">
                         로그인
                     </Button>
                     <Link href="/signup" className="w-[48%]">

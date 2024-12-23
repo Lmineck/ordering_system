@@ -14,6 +14,16 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en">
+            {/* manifest.json 연결 */}
+            <link rel="manifest" href="/manifest.json" />
+            {/* 아이콘 설정 */}
+            <link rel="icon" href="/images/test_192x192.png" sizes="192x192" />
+            <link
+                rel="apple-touch-icon"
+                href="/images/test_512x512.png"
+                sizes="512x512"
+            />
+            <meta name="theme-color" content="#000000" />
             <body>{children}</body>
         </html>
     );
