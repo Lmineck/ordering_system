@@ -20,7 +20,7 @@ export default function Login() {
     return (
         <div className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-24">
             <Image
-                src="/logo.png"
+                src="/images/logo.png"
                 alt="회사 로고"
                 width={200}
                 height={200}
