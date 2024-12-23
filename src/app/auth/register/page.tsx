@@ -7,8 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { addDoc, collection } from '@firebase/firestore';
 import { myFirestore } from '@/app/firebase/firebase';
+import { useRouter } from 'next/navigation';
 
 export default function Register() {
+    const router = useRouter();
+
     const [id, setId] = useState(''); // 입력된 ID
     const [password, setPassword] = useState(''); // 입력된 패스워드
     const [name, setName] = useState(''); // 입력된 이름
@@ -47,12 +50,7 @@ export default function Register() {
 
             alert('회원가입이 완료되었습니다! ID: ' + docRef.id);
 
-            // 입력값 초기화
-            setId('');
-            setPassword('');
-            setName('');
-            setPhone('');
-            setBranch('');
+            router.replace('/auth/login');
         } catch (error) {
             console.error('회원가입 중 오류 발생:', error);
             alert('회원가입 중 오류가 발생했습니다.');
