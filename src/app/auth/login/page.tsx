@@ -88,7 +88,7 @@ export default function Login() {
                     >
                         로그인
                     </Button>
-                    <Link href="/signup" className="w-[48%]">
+                    <Link href="/auth/register" className="w-[48%]">
                         <Button variant="outline" className="w-full">
                             회원가입
                         </Button>
