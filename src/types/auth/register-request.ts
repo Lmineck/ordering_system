@@ -1,12 +1,12 @@
-// 유저 정보
+// 회원가입 요청 body
 
 import { branch } from './branch';
 
-export interface User {
+export interface RegisterRequest {
     id: string;
     password: string;
-    role: string; // admin | user
     name: string;
     phone: string;
-    branch: branch;
+    role: string;
+    branch?: branch;
 }
