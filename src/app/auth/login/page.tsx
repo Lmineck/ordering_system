@@ -80,16 +80,22 @@ export default function Login() {
                     />
                 </div>
                 <div className="flex justify-between">
+                    {/* 로그인 버튼 */}
                     <Button
                         type="submit"
                         variant="outline"
-                        className="w-[48%]"
+                        className="w-[48%] bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
                         onClick={handleLogin}
                     >
                         로그인
                     </Button>
+
+                    {/* 회원가입 버튼 */}
                     <Link href="/auth/register" className="w-[48%]">
-                        <Button variant="outline" className="w-full">
+                        <Button
+                            variant="outline"
+                            className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
+                        >
                             회원가입
                         </Button>
                     </Link>
