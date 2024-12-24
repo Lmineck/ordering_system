@@ -13,7 +13,7 @@ const config: Config = {
                 foreground: 'var(--foreground)', // CSS 변수 연결
             },
             fontFamily: {
-                sans: ['Pretendard', 'Arial', 'sans-serif'], // Pretendard 기본 폰트
+                sans: ['Pretendard'], // Pretendard 기본 폰트
             },
         },
     },

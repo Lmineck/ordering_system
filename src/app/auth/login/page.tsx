@@ -10,7 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 export default function Login() {
-    const [data, setData] = useState([]); // 사용자 데이터 상태
+    const [data, setData] = useState<
+        Array<{ id: string; [key: string]: string }>
+    >([]); // 사용자 데이터 상태
     const [id, setId] = useState(''); // 입력된 ID
     const [password, setPassword] = useState(''); // 입력된 패스워드
     const [message, setMessage] = useState(''); // 로그인 결과 메시지
@@ -33,7 +35,7 @@ export default function Login() {
 
     useEffect(() => {
         fetchData();
-    }, [message]);
+    }, [data]);
 
     // 로그인 처리 함수
     const handleLogin = () => {
@@ -57,7 +59,7 @@ export default function Login() {
                 height={200}
                 className="mb-8"
             />
-            <form onSubmit={handleLogin} className="w-full max-w-md space-y-4">
+            <div onSubmit={handleLogin} className="w-full max-w-md space-y-4">
                 <div>
                     <Label htmlFor="id">아이디</Label>
                     <Input
@@ -88,7 +90,7 @@ export default function Login() {
                     </Link>
                 </div>
                 <p>{message}</p>
-            </form>
+            </div>
         </div>
     );
 }
