@@ -14,7 +14,7 @@ export default function CategorySelector({
     onSelectCategory,
 }: CategorySelectorProps) {
     return (
-        <ScrollArea className="whitespace-nowrap">
+        <ScrollArea className="whitespace-nowrap overflow-x-auto max-w-full">
             <div className="flex space-x-2">
                 {categories.map((category) => (
                     <Button

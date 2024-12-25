@@ -12,7 +12,7 @@ import { LoginRequest } from '@/types/auth/login-request';
 
 export default function Login() {
     const router = useRouter();
-    const { user, login } = useAuthStore();
+    const { login } = useAuthStore();
     const [userId, setUserId] = useState('');
     const [password, setPassword] = useState('');
 
@@ -36,11 +36,11 @@ export default function Login() {
                 const loginedUser = await response.json();
                 if (loginedUser?.role === 'admin') {
                     login(loginedUser);
-                    alert(`로그인 성공! 환영합니다, ${user?.name}`);
+                    alert(`로그인 성공! 환영합니다, ${loginedUser?.name}`);
                     router.replace('/admin');
                 } else if (loginedUser?.role === 'user') {
                     login(loginedUser);
-                    alert(`로그인 성공! 환영합니다, ${user?.name}`);
+                    alert(`로그인 성공! 환영합니다, ${loginedUser?.name}`);
                     router.replace('/branch');
                 } else {
                     alert(

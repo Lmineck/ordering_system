@@ -156,11 +156,16 @@ export default function QuickOrder() {
                 />
             </div>
             {/* 아이템 리스트 */}
-            <ScrollArea className="flex-grow p-4">
-                <ItemList items={items} onUpdateQuantity={updateItemQuantity} />
-            </ScrollArea>
+            <div className="flex-grow relative">
+                <ScrollArea className="h-full p-4">
+                    <ItemList
+                        items={items}
+                        onUpdateQuantity={updateItemQuantity}
+                    />
+                </ScrollArea>
+            </div>
             {/* 장바구니 정보 */}
-            <div className="p-4 bg-white border-t">
+            <div className="sticky bottom-0 p-4 bg-white border-t">
                 <div className="flex justify-between items-center">
                     <span className="text-lg font-semibold">
                         총{' '}
@@ -175,9 +180,19 @@ export default function QuickOrder() {
             </div>
             {/* 장바구니 요약 */}
             {showCart && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center p-4">
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center p-4"
+                    onClick={(e) => {
+                        if (e.target === e.currentTarget) {
+                            setShowCart(false);
+                        }
+                    }}
+                >
                     <div className="bg-white rounded-t-xl w-full max-w-md p-4">
-                        <CartSummary items={allCartItems} />
+                        <CartSummary
+                            items={allCartItems}
+                            onClose={() => setShowCart(false)}
+                        />
                         <Button onClick={placeOrder} className="w-full mt-4">
                             주문하기
                         </Button>
