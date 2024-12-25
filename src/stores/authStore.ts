@@ -16,17 +16,21 @@ export const useAuthStore = create<AuthState>()(
             user: null,
             isLoggedIn: false,
             // 로그인 처리
-            login: (user: User) =>
+            login: (user: User) => {
+                console.log('User set:', user); // 로그 출력
                 set(() => ({
                     user,
                     isLoggedIn: true,
-                })),
+                }));
+            },
             // 로그아웃 처리
-            logout: () =>
+            logout: () => {
+                console.log('User cleared.'); // 로그 출력
                 set(() => ({
                     user: null,
                     isLoggedIn: false,
-                })),
+                }));
+            },
         }),
         {
             name: 'auth-storage', // localStorage 키 이름

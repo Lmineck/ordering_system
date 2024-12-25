@@ -1,12 +1,9 @@
-// 품목
+// 상품
 
 export interface Item {
-    productId: string; // 제품 ID
-    productName: string; // 제품 이름
+    id: string; // 제품 ID
+    name: string; // 제품 이름
     imgUrl: string; // 제품 이미지 url
-    category: string; // 카테고리
+    category: string; // 카테고리 이름 (비정규화)
     unit: string; // 단위
-    quantity: number; // 수량
-    unitPrice: number; // 단가
-    totalPrice: number; // 총 가격 (unitPrice * quantity)
 }

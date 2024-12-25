@@ -1,52 +1,57 @@
 'use client';
 
-import { collection, getDocs } from '@firebase/firestore';
-import { myFirestore } from '@/app/firebase/firebase';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAuthStore } from '@/stores/authStore';
+import { useRouter } from 'next/navigation';
+import { LoginRequest } from '@/types/auth/login-request';
 
 export default function Login() {
-    const [data, setData] = useState<
-        Array<{ id: string; [key: string]: string }>
-    >([]);
-    const [id, setId] = useState(''); // 입력된 ID
-    const [password, setPassword] = useState(''); // 입력된 패스워드
-
-    // Firestore에서 데이터 가져오기
-    const fetchData = async () => {
-        try {
-            const querySnapshot = await getDocs(
-                collection(myFirestore, 'user'),
-            );
-            const fetchedData = querySnapshot.docs.map((doc) => ({
-                id: doc.id, // 문서 ID 포함
-                ...doc.data(),
-            }));
-            setData(fetchedData); // 가져온 데이터를 상태에 저장
-        } catch (error) {
-            console.error('데이터를 가져오는 중 오류 발생:', error);
-        }
-    };
-
-    useEffect(() => {
-        fetchData();
-    });
+    const router = useRouter();
+    const { user, login } = useAuthStore();
+    const [userId, setUserId] = useState('');
+    const [password, setPassword] = useState('');
 
     // 로그인 처리 함수
-    const handleLogin = () => {
-        const user = data.find(
-            (user) => user.id === id && user.password === password,
-        );
+    const handleLogin = async () => {
+        try {
+            const requestBody: LoginRequest = {
+                userId,
+                password,
+            };
 
-        if (user) {
-            // 성공 메시지
-            alert('로그인에 성공하였습니다');
-        } else {
-            alert('로그인에 실패했습니다!\n아이디 또는 비밀번호를 확인하세요.');
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            });
+
+            if (response.ok) {
+                const loginedUser = await response.json();
+                if (loginedUser?.role === 'admin') {
+                    login(loginedUser);
+                    alert(`로그인 성공! 환영합니다, ${user?.name}`);
+                    router.replace('/admin');
+                } else if (loginedUser?.role === 'user') {
+                    login(loginedUser);
+                    alert(`로그인 성공! 환영합니다, ${user?.name}`);
+                    router.replace('/branch');
+                } else {
+                    alert(
+                        `'${loginedUser?.name}' 님은 계정 승인 대기중입니다.`,
+                    );
+                }
+            } else {
+                alert('로그인 실패: 아이디 또는 비밀번호를 확인하세요.');
+            }
+        } catch (error) {
+            console.error('로그인 중 오류 발생:', error);
         }
     };
 
@@ -64,8 +69,8 @@ export default function Login() {
                     <Label htmlFor="id">아이디</Label>
                     <Input
                         id="id"
-                        value={id}
-                        onChange={(e) => setId(e.target.value)}
+                        value={userId}
+                        onChange={(e) => setUserId(e.target.value)}
                         required
                     />
                 </div>
