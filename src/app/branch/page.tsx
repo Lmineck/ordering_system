@@ -31,7 +31,7 @@ export default function DashboardPage() {
                         </Button>
                     </Link>
                     <Link
-                        href="/order-history"
+                        href="/branch/order-list"
                         className="flex-1 aspect-square"
                     >
                         <Button
