@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -12,9 +12,13 @@ import { LoginRequest } from '@/types/auth/login-request';
 
 export default function Login() {
     const router = useRouter();
-    const { login } = useAuthStore();
+    const { logout, login } = useAuthStore();
     const [userId, setUserId] = useState('');
     const [password, setPassword] = useState('');
+
+    useEffect(() => {
+        logout();
+    }, [logout]);
 
     // 로그인 처리 함수
     const handleLogin = async () => {

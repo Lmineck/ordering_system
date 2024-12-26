@@ -16,6 +16,7 @@ export default function AdminLayout({
 
     useEffect(() => {
         // 사용자 권한 검증 및 리다이렉트 처리
+        if (isLoggedIn === null) return;
         if (!isLoggedIn) {
             router.replace('/auth/login');
         } else if (user?.role !== 'admin') {

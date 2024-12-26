@@ -1,15 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useRouter } from 'next/navigation';
 import { RegisterRequest } from '@/types/auth/register-request';
+import { useAuthStore } from '@/stores/authStore';
 
 export default function Register() {
     const router = useRouter();
+    const { logout } = useAuthStore();
 
     const [userId, setUserId] = useState('');
     const [password, setPassword] = useState('');
@@ -20,6 +22,10 @@ export default function Register() {
     const [isPasswordValid, setIsPasswordValid] = useState(true);
     const [isPhoneValid, setIsPhoneValid] = useState(true);
     const [isBranchValid, setIsBranchValid] = useState(true);
+
+    useEffect(() => {
+        logout();
+    }, [logout]);
 
     // 아이디 규칙: 영문 소문자 및 숫자, 6~12자
     const idRegex = /^[a-z0-9]{6,12}$/;
