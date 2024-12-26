@@ -1,38 +1,27 @@
 {
-    "extends": "next",
-    "plugins": ["eslint-plugin-simple-import-sort", "unused-imports"],
+    "extends": [
+        "next/core-web-vitals", // Next.js 기본 린트 설정
+        "eslint:recommended", // 기본적인 린트 규칙
+        "plugin:@typescript-eslint/recommended" // TypeScript 관련 린트 규칙
+    ],
     "rules": {
-        "react/no-unescaped-entities": "off",
-        "@next/next/no-page-custom-font": "off",
-        "react/self-closing-comp": [
+        "@typescript-eslint/no-explicit-any": "off", // any 타입 허용
+        "@typescript-eslint/explicit-module-boundary-types": "off", // 함수 반환 타입 명시 강제 비활성화
+        "react/react-in-jsx-scope": "off", // React import 요구 비활성화
+        "react/jsx-props-no-spreading": "off", // props spreading 허용
+        "no-console": "warn", // console.log 사용 시 경고
+        "no-debugger": "warn", // debugger 사용 시 경고
+        "@typescript-eslint/no-unused-vars": [
             "error",
             {
-                "component": true,
-                "html": true
+                "args": "all",
+                "argsIgnorePattern": "^_",
+                "caughtErrors": "all",
+                "caughtErrorsIgnorePattern": "^_",
+                "destructuredArrayIgnorePattern": "^_",
+                "varsIgnorePattern": "^_",
+                "ignoreRestSiblings": true
             }
-        ],
-        "react/jsx-first-prop-new-line": "error",
-        "comma-dangle": [
-            "error",
-            {
-                "arrays": "always-multiline",
-                "objects": "always-multiline",
-                "imports": "never",
-                "exports": "never",
-                "functions": "never"
-            }
-        ],
-        "indent": ["error", 2],
-        "quotes": ["error", "single"],
-        "eol-last": "error",
-        "semi": ["error", "always"],
-        "simple-import-sort/imports": "error",
-        "simple-import-sort/exports": "error",
-        "no-unused-vars": [
-            "error",
-            { "vars": "all", "args": "none", "ignoreRestSiblings": false }
-        ],
-        "unused-imports/no-unused-imports-ts": ["error"],
-        "comma-spacing": ["error", { "before": false, "after": true }]
+        ]
     }
 }

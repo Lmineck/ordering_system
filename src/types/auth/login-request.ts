@@ -1,6 +1,6 @@
 // 로그인 요청 body
 
 export interface LoginRequest {
-    id: string;
+    userId: string;
     password: string;
 }

@@ -5,14 +5,13 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { addDoc, collection } from '@firebase/firestore';
-import { myFirestore } from '@/app/firebase/firebase';
 import { useRouter } from 'next/navigation';
+import { RegisterRequest } from '@/types/auth/register-request';
 
 export default function Register() {
     const router = useRouter();
 
-    const [id, setId] = useState('');
+    const [userId, setUserId] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
@@ -26,7 +25,8 @@ export default function Register() {
     const idRegex = /^[a-z0-9]{6,12}$/;
 
     // 비밀번호 규칙: 최소 8자, 숫자, 영문자, 특수문자 포함
-    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex =
+        /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
     // 핸드폰 번호 규칙: 010-0000-0000 형식
     const phoneRegex = /^010-\d{4}-\d{4}$/;
@@ -36,7 +36,7 @@ export default function Register() {
 
     const handleIdChange = (e) => {
         const value = e.target.value;
-        setId(value);
+        setUserId(value);
         setIsIdValid(idRegex.test(value));
     };
 
@@ -59,40 +59,31 @@ export default function Register() {
     };
 
     const handleRegister = async () => {
-        if (!id || !password || !name || !phone || !branch) {
-            alert('모든 필드를 입력해주세요.');
-            return;
-        }
-
-        if (!isIdValid || !isPasswordValid || !isPhoneValid || !isBranchValid) {
-            alert('입력값이 유효하지 않습니다. 규칙에 맞게 입력해주세요.');
-            return;
-        }
-
         try {
-            const now = new Date();
-            const formattedTime = `${now.getFullYear()}${String(
-                now.getMonth() + 1,
-            ).padStart(
-                2,
-                '0',
-            )}${String(now.getDate()).padStart(2, '0')}${String(
-                now.getHours(),
-            ).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
-
-            const docRef = await addDoc(collection(myFirestore, 'user'), {
-                id,
+            const requestBody: RegisterRequest = {
+                userId,
                 password,
                 name,
                 phone,
                 branch,
-                createdAt: formattedTime,
-                updatedAt: formattedTime,
-                role: 'guest',
+            };
+
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
             });
 
-            alert('회원가입이 완료되었습니다! ID: ' + docRef.id);
-            router.replace('/auth/login');
+            if (response.ok) {
+                const data = await response.json();
+                alert('회원가입이 완료되었습니다! ID: ' + data.id);
+                router.replace('/auth/login');
+            } else {
+                const error = await response.json();
+                alert('회원가입 실패: ' + error.message);
+            }
         } catch (error) {
             console.error('회원가입 중 오류 발생:', error);
             alert('회원가입 중 오류가 발생했습니다.');
@@ -114,7 +105,7 @@ export default function Register() {
                     <Input
                         id="id"
                         placeholder="영문 소문자 및 숫자, 6~12자로 입력하세요"
-                        value={id}
+                        value={userId}
                         onChange={handleIdChange}
                         required
                         className={`${
@@ -125,7 +116,8 @@ export default function Register() {
                     />
                     {!isIdValid && (
                         <p className="mt-1 text-sm text-red-500">
-                            아이디는 영문 소문자 및 숫자로 6~12자로 입력해야 합니다.
+                            아이디는 영문 소문자 및 숫자로 6~12자로 입력해야
+                            합니다.
                         </p>
                     )}
                 </div>
@@ -146,7 +138,8 @@ export default function Register() {
                     />
                     {!isPasswordValid && (
                         <p className="mt-1 text-sm text-red-500">
-                            비밀번호는 숫자, 영문자, 특수문자를 포함한 최소 8자여야 합니다.
+                            비밀번호는 숫자, 영문자, 특수문자를 포함한 최소
+                            8자여야 합니다.
                         </p>
                     )}
                 </div>
@@ -196,7 +189,8 @@ export default function Register() {
                     />
                     {!isBranchValid && (
                         <p className="mt-1 text-sm text-red-500">
-                            지점 이름은 '오일내'로 시작하고 '점'으로 끝나야 합니다.
+                            지점 이름은 '오일내'로 시작하고 '점'으로 끝나야
+                            합니다.
                         </p>
                     )}
                 </div>
