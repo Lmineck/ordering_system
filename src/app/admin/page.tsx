@@ -42,7 +42,7 @@ export default function AdminDashboard() {
                     <div className="flex flex-col h-full justify-between">
                         <div className="flex-grow flex items-center justify-center w-full max-w-[600px] mx-auto">
                             <Link
-                                href="/admin/orders/by-date"
+                                href="/admin/orders/total"
                                 className="flex-1 max-w-[200px] mx-2"
                             >
                                 <Button
@@ -53,7 +53,7 @@ export default function AdminDashboard() {
                                 </Button>
                             </Link>
                             <Link
-                                href="/admin/orders/by-branch"
+                                href="/admin/orders/branch-orders"
                                 className="flex-1 max-w-[200px] mx-2"
                             >
                                 <Button

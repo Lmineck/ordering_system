@@ -22,7 +22,10 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="flex space-x-4 w-full">
-                    <Link href="/mypage" className="flex-1 aspect-square">
+                    <Link
+                        href="/branch/mypage"
+                        className="flex-1 aspect-square"
+                    >
                         <Button
                             variant="outline"
                             className="w-full h-full text-lg font-semibold bg-white hover:bg-gray-100"

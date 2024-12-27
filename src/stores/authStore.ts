@@ -3,29 +3,26 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 interface AuthState {
-    user: User | null; // 현재 로그인된 사용자 정보
-    isLoggedIn: boolean; // 로그인 상태
-    login: (user: User) => void; // 로그인 함수
-    logout: () => void; // 로그아웃 함수
+    user: User | null;
+    isLoggedIn: boolean | null; // null로 초기화
+    login: (user: User) => void;
+    logout: () => void;
 }
 
-// Zustand store 생성
 export const useAuthStore = create<AuthState>()(
     persist(
         (set) => ({
             user: null,
-            isLoggedIn: false,
-            // 로그인 처리
+            isLoggedIn: null, // 초기값 null
             login: (user: User) => {
-                console.log('User set:', user); // 로그 출력
+                console.log('User set:', user);
                 set(() => ({
                     user,
                     isLoggedIn: true,
                 }));
             },
-            // 로그아웃 처리
             logout: () => {
-                console.log('User cleared.'); // 로그 출력
+                console.log('User cleared.');
                 set(() => ({
                     user: null,
                     isLoggedIn: false,
@@ -33,7 +30,7 @@ export const useAuthStore = create<AuthState>()(
             },
         }),
         {
-            name: 'auth-storage', // localStorage 키 이름
+            name: 'auth-storage',
             storage: {
                 getItem: (name) => {
                     const value = localStorage.getItem(name);
