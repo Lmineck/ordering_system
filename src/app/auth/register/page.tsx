@@ -40,25 +40,25 @@ export default function Register() {
     // 지점 규칙: "오일내"로 시작하고 "점"으로 끝나는 문자열
     const branchRegex = /^오일내.+점$/;
 
-    const handleIdChange = (e) => {
+    const handleIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setUserId(value);
         setIsIdValid(idRegex.test(value));
     };
 
-    const handlePasswordChange = (e) => {
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setPassword(value);
         setIsPasswordValid(passwordRegex.test(value));
     };
 
-    const handlePhoneChange = (e) => {
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setPhone(value);
         setIsPhoneValid(phoneRegex.test(value));
     };
 
-    const handleBranchChange = (e) => {
+    const handleBranchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setBranch(value);
         setIsBranchValid(branchRegex.test(value));
@@ -195,8 +195,8 @@ export default function Register() {
                     />
                     {!isBranchValid && (
                         <p className="mt-1 text-sm text-red-500">
-                            지점 이름은 '오일내'로 시작하고 '점'으로 끝나야
-                            합니다.
+                            지점 이름은 &apos;오일내&apos;로 시작하고
+                            &apos;점&apos;으로 끝나야 합니다.
                         </p>
                     )}
                 </div>

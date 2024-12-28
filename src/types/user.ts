@@ -4,7 +4,7 @@ export interface User {
     id: string;
     userId: string;
     password: string;
-    role: string; // admin | user
+    role: string; // admin | guest | user
     name: string;
     phone: string;
     branch: string;

@@ -7,11 +7,12 @@ interface AuthState {
     isLoggedIn: boolean | null; // null로 초기화
     login: (user: User) => void;
     logout: () => void;
+    setUser: (user: Partial<User>) => void; // 추가된 setUser
 }
 
 export const useAuthStore = create<AuthState>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             user: null,
             isLoggedIn: null, // 초기값 null
             login: (user: User) => {
@@ -27,6 +28,16 @@ export const useAuthStore = create<AuthState>()(
                     user: null,
                     isLoggedIn: false,
                 }));
+            },
+            setUser: (updatedFields: Partial<User>) => {
+                const currentUser = get().user;
+                if (currentUser) {
+                    const updatedUser = { ...currentUser, ...updatedFields };
+                    console.log('User updated:', updatedUser);
+                    set(() => ({
+                        user: updatedUser,
+                    }));
+                }
             },
         }),
         {

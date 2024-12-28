@@ -10,20 +10,43 @@ class UserService extends FirebaseService<User> {
     }
 
     /**
-     * 특정 유저를 가져오는 함수 (ID로 검색)
-     * @param id 유저 ID
-     * @returns User 데이터 또는 null
-     */
-    async getUserById(id: string): Promise<User | null> {
-        return await this.read(id);
-    }
-
-    /**
-     * 모든 유저를 가져오는 함수
-     * @returns User 배열
+     * 모든 유저 정보를 가져오는 함수
+     * @returns 유저 리스트
      */
     async getAllUsers(): Promise<User[]> {
         return await this.list();
+    }
+
+    /**
+     * ID로 유저를 삭제하는 함수
+     * @param id 삭제할 유저의 고유 Firestore ID
+     * @returns void
+     */
+    async deleteUserById(id: string): Promise<void> {
+        await this.delete(id);
+    }
+
+    /**
+     * 유저 정보를 수정하는 함수
+     * @param id 수정할 유저의 고유 Firestore ID
+     * @param updatedData 수정할 데이터
+     * @returns void
+     */
+    async updateUser(
+        id: string,
+        updatedData: Partial<Omit<User, 'id'>>,
+    ): Promise<void> {
+        // Firestore의 고유 ID를 사용하여 업데이트
+        await this.update(id, updatedData);
+    }
+
+    /**
+     * 유저의 역할을 guest에서 user로 변경하는 함수
+     * @param id 역할을 변경할 유저의 고유 Firestore ID
+     * @returns void
+     */
+    async upgradeRoleToUser(id: string): Promise<void> {
+        await this.update(id, { role: 'user' });
     }
 
     /**
@@ -33,26 +56,6 @@ class UserService extends FirebaseService<User> {
      */
     async createUser(user: Omit<User, 'id'>): Promise<string> {
         return await this.create(user);
-    }
-
-    /**
-     * 유저 데이터를 업데이트하는 함수
-     * @param id 유저 ID
-     * @param userData 업데이트할 데이터 (일부 필드만 가능)
-     */
-    async updateUser(
-        id: string,
-        userData: Partial<Omit<User, 'id'>>,
-    ): Promise<void> {
-        await this.update(id, userData);
-    }
-
-    /**
-     * 유저를 삭제하는 함수
-     * @param id 유저 ID
-     */
-    async deleteUser(id: string): Promise<void> {
-        await this.delete(id);
     }
 
     /**
