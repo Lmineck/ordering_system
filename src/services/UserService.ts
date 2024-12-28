@@ -2,6 +2,7 @@ import { LoginRequest } from '@/types/auth/login-request';
 import { RegisterRequest } from '@/types/auth/register-request';
 import { User } from '@/types/user';
 import FirebaseService from '@services/FirebaseService';
+import { format } from 'date-fns';
 
 class UserService extends FirebaseService<User> {
     constructor() {
@@ -78,11 +79,7 @@ class UserService extends FirebaseService<User> {
         const { userId, password, name, phone, branch } = registerRequest;
 
         const now = new Date();
-        const formattedTime = `${now.getFullYear()}${String(
-            now.getMonth() + 1,
-        ).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(
-            now.getHours(),
-        ).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+        const formattedTime = format(now, 'yyyyMMddHHmmss');
 
         return await this.createUser({
             userId,

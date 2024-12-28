@@ -40,12 +40,12 @@ export default function AdminLayout({
                     <Image
                         src="/svgs/home.svg"
                         alt="홈"
-                        width={24}
-                        height={24}
+                        width={20}
+                        height={20}
                         className="cursor-pointer mr-4"
                         onClick={() => router.replace('/admin')}
                     />
-                    <span className="text-xl font-semibold">{adminName}</span>
+                    <span className="text-lg font-semibold">{adminName}</span>
                 </div>
                 <Button onClick={logout} variant="outline" size="lg">
                     로그아웃

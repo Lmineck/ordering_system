@@ -18,10 +18,14 @@ export default function Register() {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [branch, setBranch] = useState('');
-    const [isIdValid, setIsIdValid] = useState(true);
-    const [isPasswordValid, setIsPasswordValid] = useState(true);
-    const [isPhoneValid, setIsPhoneValid] = useState(true);
-    const [isBranchValid, setIsBranchValid] = useState(true);
+    const [isIdValid, setIsIdValid] = useState(false);
+    const [isPasswordValid, setIsPasswordValid] = useState(false);
+    const [isPhoneValid, setIsPhoneValid] = useState(false);
+    const [isBranchValid, setIsBranchValid] = useState(false);
+    const [idTouched, setIdTouched] = useState(false);
+    const [passwordTouched, setPasswordTouched] = useState(false);
+    const [phoneTouched, setPhoneTouched] = useState(false);
+    const [branchTouched, setBranchTouched] = useState(false);
 
     useEffect(() => {
         logout();
@@ -44,24 +48,28 @@ export default function Register() {
         const value = e.target.value;
         setUserId(value);
         setIsIdValid(idRegex.test(value));
+        setIdTouched(true);
     };
 
     const handlePasswordChange = (e) => {
         const value = e.target.value;
         setPassword(value);
         setIsPasswordValid(passwordRegex.test(value));
+        setPasswordTouched(true);
     };
 
     const handlePhoneChange = (e) => {
         const value = e.target.value;
         setPhone(value);
         setIsPhoneValid(phoneRegex.test(value));
+        setPhoneTouched(true);
     };
 
     const handleBranchChange = (e) => {
         const value = e.target.value;
         setBranch(value);
         setIsBranchValid(branchRegex.test(value));
+        setBranchTouched(true);
     };
 
     const handleRegister = async () => {
@@ -96,6 +104,10 @@ export default function Register() {
         }
     };
 
+    // 모든 유효성 검사 통과 여부 확인
+    const isFormValid =
+        isIdValid && isPasswordValid && isPhoneValid && isBranchValid;
+
     return (
         <div className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-24">
             <Image
@@ -115,12 +127,12 @@ export default function Register() {
                         onChange={handleIdChange}
                         required
                         className={`${
-                            isIdValid
-                                ? 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                                : 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                            idTouched && !isIdValid
+                                ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                                : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                         } w-full`}
                     />
-                    {!isIdValid && (
+                    {idTouched && !isIdValid && (
                         <p className="mt-1 text-sm text-red-500">
                             아이디는 영문 소문자 및 숫자로 6~12자로 입력해야
                             합니다.
@@ -137,12 +149,12 @@ export default function Register() {
                         onChange={handlePasswordChange}
                         required
                         className={`${
-                            isPasswordValid
-                                ? 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                                : 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                            passwordTouched && !isPasswordValid
+                                ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                                : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                         } w-full`}
                     />
-                    {!isPasswordValid && (
+                    {passwordTouched && !isPasswordValid && (
                         <p className="mt-1 text-sm text-red-500">
                             비밀번호는 숫자, 영문자, 특수문자를 포함한 최소
                             8자여야 합니다.
@@ -168,12 +180,12 @@ export default function Register() {
                         onChange={handlePhoneChange}
                         required
                         className={`${
-                            isPhoneValid
-                                ? 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                                : 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                            phoneTouched && !isPhoneValid
+                                ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                                : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                         } w-full`}
                     />
-                    {!isPhoneValid && (
+                    {phoneTouched && !isPhoneValid && (
                         <p className="mt-1 text-sm text-red-500">
                             핸드폰 번호는 010-0000-0000 형식이어야 합니다.
                         </p>
@@ -188,12 +200,12 @@ export default function Register() {
                         onChange={handleBranchChange}
                         required
                         className={`${
-                            isBranchValid
-                                ? 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                                : 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                            branchTouched && !isBranchValid
+                                ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                                : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                         } w-full`}
                     />
-                    {!isBranchValid && (
+                    {branchTouched && !isBranchValid && (
                         <p className="mt-1 text-sm text-red-500">
                             지점 이름은 '오일내'로 시작하고 '점'으로 끝나야
                             합니다.
@@ -206,6 +218,7 @@ export default function Register() {
                         variant="outline"
                         className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
                         onClick={handleRegister}
+                        disabled={!isFormValid} // 유효성 검사 결과에 따라 버튼 활성화/비활성화
                     >
                         회원가입
                     </Button>

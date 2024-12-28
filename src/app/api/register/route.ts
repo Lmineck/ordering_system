@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
         if (!userId || !password || !name || !phone || !branch) {
             return NextResponse.json(
                 { message: '모든 필드를 입력해주세요.' },
-                { status: 400 },
+                { status: 400 }
             );
         }
 
