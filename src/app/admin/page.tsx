@@ -9,7 +9,7 @@ export default function AdminDashboard() {
         <div className="flex-grow flex items-center justify-center">
             <div className="w-[320px] h-[400px] bg-white rounded-xl shadow-lg p-4 flex flex-col justify-between">
                 <div className="flex flex-col h-full justify-between">
-                    <Link href="/admin/orders/total" className="flex-grow flex">
+                    <Link href="/admin/orders" className="flex-grow flex">
                         <Button
                             size="lg"
                             className="w-full h-full text-2xl font-semibold bg-blue-600 hover:bg-blue-700 text-white"

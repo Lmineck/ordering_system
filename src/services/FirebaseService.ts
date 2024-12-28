@@ -13,10 +13,6 @@ import {
     QueryDocumentSnapshot,
     SnapshotOptions,
     where,
-    startAt,
-    endAt,
-    orderBy,
-    limit,
 } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
 
@@ -145,32 +141,7 @@ class FirebaseService<T extends DocumentData & { id?: string }> {
         }
     }
 
-    // 1. 페이지네이션 지원
-    async listWithPagination(
-        lastId: string | null,
-        pageSize: number = 10,
-    ): Promise<T[]> {
-        try {
-            let q = query(this.getCollectionRef(), limit(pageSize));
-            if (lastId) {
-                const lastDocSnap = await getDoc(this.getDocRef(lastId));
-                if (lastDocSnap.exists()) {
-                    q = query(
-                        this.getCollectionRef(),
-                        startAt(lastDocSnap),
-                        limit(pageSize),
-                    );
-                }
-            }
-            const querySnapshot = await getDocs(q);
-            return querySnapshot.docs.map((doc) => doc.data());
-        } catch (error) {
-            console.error('Error listing documents with pagination:', error);
-            throw error;
-        }
-    }
-
-    // 2. 다중 조건 필터링
+    // 다중 조건 필터링
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async findByMultipleFields(filters: Record<string, any>): Promise<T[]> {
         try {
@@ -189,54 +160,29 @@ class FirebaseService<T extends DocumentData & { id?: string }> {
         }
     }
 
-    // 3. 범위 검색
-    async findByRange(
-        field: string,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        startValue: any,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        endValue: any,
-    ): Promise<T[]> {
+    // FirebaseService 클래스 내부
+    async findOrdersByDate(date: string): Promise<T[]> {
         try {
+            const startOfDay = `${date}000000`; // 오늘 시작 시간
+            const endOfDay = `${date}235959`; // 오늘 끝 시간
+
             const q = query(
                 this.getCollectionRef(),
-                orderBy(field),
-                startAt(startValue),
-                endAt(endValue),
+                where('orderDate', '>=', startOfDay),
+                where('orderDate', '<=', endOfDay)
             );
+
             const querySnapshot = await getDocs(q);
             return querySnapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data(),
             })) as T[];
         } catch (error) {
-            console.error(
-                `Error finding documents by range for field: ${field}`,
-                error,
-            );
+            console.error('Error finding orders by date:', error);
             throw error;
         }
     }
 
-    // 5. 정렬
-    async listWithSorting(
-        orderFields: [string, 'asc' | 'desc'][],
-    ): Promise<T[]> {
-        try {
-            const orderConditions = orderFields.map(([field, direction]) =>
-                orderBy(field, direction),
-            );
-            const q = query(this.getCollectionRef(), ...orderConditions);
-            const querySnapshot = await getDocs(q);
-            return querySnapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            })) as T[];
-        } catch (error) {
-            console.error('Error listing documents with sorting:', error);
-            throw error;
-        }
-    }
 }
 
 export default FirebaseService;
