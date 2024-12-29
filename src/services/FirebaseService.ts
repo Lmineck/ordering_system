@@ -237,6 +237,29 @@ class FirebaseService<T extends DocumentData & { id?: string }> {
             throw error;
         }
     }
+
+    // FirebaseService에 새로운 메서드 추가
+    async findByFieldPartialMatch(field: string, value: string): Promise<T[]> {
+        try {
+            const q = query(
+                this.getCollectionRef(),
+                where(field, '>=', value),
+                where(field, '<=', value + '\uf8ff'),
+            );
+            const querySnapshot = await getDocs(q);
+
+            return querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as T[];
+        } catch (error) {
+            console.error(
+                `Error finding documents with partial match on ${field}:`,
+                error,
+            );
+            throw error;
+        }
+    }
 }
 
 export default FirebaseService;

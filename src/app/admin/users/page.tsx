@@ -37,7 +37,7 @@ const getRoleLabel = (role: string) => {
         case 'user':
             return '유저';
         case 'guest':
-            return '승인 필요';
+            return '승인 대기';
         default:
             return role; // Fallback for unexpected roles
     }
