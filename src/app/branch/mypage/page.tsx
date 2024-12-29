@@ -10,6 +10,8 @@ import { Edit, Save, X } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import UserService from '@/services/UserService';
 import { User } from '@/types/user';
+import { format } from 'date-fns';
+import { formatDate } from '@/utils/formatDate';
 
 const userService = new UserService();
 
@@ -105,11 +107,7 @@ export default function MyPage() {
         }
 
         const now = new Date();
-        const formattedTime = `${now.getFullYear()}${String(
-            now.getMonth() + 1,
-        ).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(
-            now.getHours(),
-        ).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+        const formattedTime = format(now, 'yyyyMMddHHmmss');
 
         // 서버 요청 데이터 생성
         const updateData: Partial<User> = {
@@ -144,15 +142,6 @@ export default function MyPage() {
             console.error(error);
             alert('수정 중 오류가 발생했습니다.');
         }
-    };
-
-    const formatDate = (dateString: string) => {
-        const year = dateString.slice(0, 4);
-        const month = dateString.slice(4, 6);
-        const day = dateString.slice(6, 8);
-        const hour = dateString.slice(8, 10);
-        const minute = dateString.slice(10, 12);
-        return `${year}-${month}-${day} ${hour}:${minute}`;
     };
 
     return (
@@ -213,7 +202,9 @@ export default function MyPage() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="password">비밀번호</Label>
+                                    <Label htmlFor="password">
+                                        새 비밀번호
+                                    </Label>
                                     <Input
                                         id="password"
                                         name="password"
@@ -236,7 +227,7 @@ export default function MyPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="confirmPassword">
-                                        비밀번호 확인
+                                        새 비밀번호 확인
                                     </Label>
                                     <Input
                                         id="confirmPassword"

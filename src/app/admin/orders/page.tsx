@@ -20,22 +20,7 @@ import {
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers';
-
-interface OrderItem {
-    category: string;
-    imgUrl: string;
-    name: string;
-    quantity: number;
-    unit: string;
-}
-
-interface Order {
-    id: string;
-    branch: string;
-    items: OrderItem[];
-    orderDate: string;
-    status: string;
-}
+import { Order, OrderItem } from '@/types/order';
 
 const orderService = new FirebaseService<Order>('order');
 

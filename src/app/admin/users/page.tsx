@@ -8,17 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft } from 'lucide-react';
 import { User } from '@/types/user';
 import UserService from '@/services/UserService';
+import { formatDate } from '@/utils/formatDate';
 
 const userService = new UserService();
-
-const formatDate = (dateString: string) => {
-    const year = dateString.slice(0, 4);
-    const month = dateString.slice(4, 6);
-    const day = dateString.slice(6, 8);
-    const hour = dateString.slice(8, 10);
-    const minute = dateString.slice(10, 12);
-    return `${year}-${month}-${day} ${hour}:${minute}`;
-};
 
 const sortUsers = (users: User[]) => {
     return users.sort((a, b) => {
