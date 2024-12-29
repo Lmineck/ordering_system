@@ -13,6 +13,7 @@ import {
     QueryDocumentSnapshot,
     SnapshotOptions,
     where,
+    orderBy,
 } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
 
@@ -169,7 +170,7 @@ class FirebaseService<T extends DocumentData & { id?: string }> {
             const q = query(
                 this.getCollectionRef(),
                 where('orderDate', '>=', startOfDay),
-                where('orderDate', '<=', endOfDay)
+                where('orderDate', '<=', endOfDay),
             );
 
             const querySnapshot = await getDocs(q);
@@ -183,6 +184,48 @@ class FirebaseService<T extends DocumentData & { id?: string }> {
         }
     }
 
+    // 5. 정렬
+    async listWithSorting(
+        orderFields: [string, 'asc' | 'desc'][],
+    ): Promise<T[]> {
+        try {
+            const orderConditions = orderFields.map(([field, direction]) =>
+                orderBy(field, direction),
+            );
+            const q = query(this.getCollectionRef(), ...orderConditions);
+            const querySnapshot = await getDocs(q);
+            return querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as T[];
+        } catch (error) {
+            console.error('Error listing documents with sorting:', error);
+            throw error;
+        }
+    }
+
+    // FirebaseService에 새로운 메서드 추가
+    async findByFieldPartialMatch(field: string, value: string): Promise<T[]> {
+        try {
+            const q = query(
+                this.getCollectionRef(),
+                where(field, '>=', value),
+                where(field, '<=', value + '\uf8ff'),
+            );
+            const querySnapshot = await getDocs(q);
+
+            return querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as T[];
+        } catch (error) {
+            console.error(
+                `Error finding documents with partial match on ${field}:`,
+                error,
+            );
+            throw error;
+        }
+    }
 }
 
 export default FirebaseService;

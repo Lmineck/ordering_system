@@ -1,9 +1,9 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { OrderItem } from '@/types/order';
+import { ListItem } from './page';
 
 interface ItemListProps {
-    items: OrderItem[];
+    items: ListItem[];
     onUpdateQuantity: (itemId: string, newQuantity: number) => void;
 }
 

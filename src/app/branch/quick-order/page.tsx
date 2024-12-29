@@ -7,21 +7,26 @@ import CategorySelector from './category-selector';
 import ItemList from './item-list';
 import CartSummary from './cart-summary';
 import { Category } from '@/types/category';
-import { OrderItem } from '@/types/order';
 import { useAuthStore } from '@/stores/authStore';
+import { Item } from '@/types/item';
+import { Order, OrderItem } from '@/types/order';
+
+export interface ListItem extends Item {
+    quantity: number; // 주문에서만 사용하는 수량
+}
 
 export default function QuickOrder() {
     const { user } = useAuthStore();
 
     const [categories, setCategories] = useState<Category[]>([]);
     const [categoryItems, setCategoryItems] = useState<
-        Record<string, OrderItem[]>
+        Record<string, ListItem[]>
     >({});
-    const [items, setItems] = useState<OrderItem[]>([]);
+    const [items, setItems] = useState<ListItem[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(
         null,
     );
-    const [allCartItems, setAllCartItems] = useState<OrderItem[]>([]);
+    const [allCartItems, setAllCartItems] = useState<ListItem[]>([]);
     const [showCart, setShowCart] = useState(false);
 
     // 페이지 초기 로드: 모든 카테고리와 아이템 데이터 가져오기
@@ -41,7 +46,7 @@ export default function QuickOrder() {
                     throw new Error(
                         `Failed to fetch items for ${category.name}`,
                     );
-                const itemsData: OrderItem[] = await itemsRes.json();
+                const itemsData: ListItem[] = await itemsRes.json();
                 return {
                     [category.id]: itemsData.map((item) => ({
                         ...item,
@@ -116,14 +121,24 @@ export default function QuickOrder() {
     // 주문하기
     const placeOrder = async () => {
         const now = new Date();
-        const kstDate = new Date(
-            now.getTime() + 9 * 60 * 60 * 1000, // UTC 시간에서 9시간 추가 (KST)
-        );
+        const formattedTime = `${now.getFullYear()}${String(
+            now.getMonth() + 1,
+        ).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(
+            now.getHours(),
+        ).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
 
-        const orderPayload = {
-            items: allCartItems,
-            orderDate: kstDate.toISOString(), // KST 기준 ISO 형식
-            branch: user?.branch,
+        // ListItem 배열을 OrderItem 배열로 변환
+        const orderItems: OrderItem[] = allCartItems.map((item) => ({
+            name: item.name,
+            category: item.category,
+            unit: item.unit,
+            quantity: item.quantity,
+        }));
+
+        const orderPayload: Omit<Order, 'id'> = {
+            items: orderItems,
+            orderDate: formattedTime,
+            branch: user?.branch ?? 'Unknown Branch',
             status: 'pending', // 초기 상태
         };
 

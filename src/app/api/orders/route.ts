@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
         }
 
         // 주문 생성
-        const orderId = await orderService.createOrder(body);
+        const orderId = await orderService.createOrUpdateOrder(body);
         return NextResponse.json(
             { id: orderId, message: 'Order created successfully' },
             { status: 201 },
