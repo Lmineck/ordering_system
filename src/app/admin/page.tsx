@@ -1,12 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 export default function AdminDashboard() {
     return (
-        <div className="flex-grow flex items-center justify-center">
+        <div className="flex flex-grow items-center justify-center ">
             <div className="w-[320px] h-[400px] bg-white rounded-xl shadow-lg p-4 flex flex-col justify-between">
                 <div className="flex flex-col h-full justify-between">
                     <Link href="/admin/orders" className="flex-grow flex">

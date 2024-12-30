@@ -125,7 +125,7 @@ export default function ItemManagement() {
                         />
                         <Button
                             onClick={addCategory}
-                            className="w-full sm:w-auto"
+                            className="w-full sm:w-auto flex items-center justify-center whitespace-nowrap"
                         >
                             <Plus size={16} className="mr-2" />
                             추가

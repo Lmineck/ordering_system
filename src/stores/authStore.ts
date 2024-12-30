@@ -4,10 +4,12 @@ import { persist } from 'zustand/middleware';
 
 interface AuthState {
     user: User | null;
-    isLoggedIn: boolean | null; // null로 초기화
+    isLoggedIn: boolean | null; // 초기값 null
+    isLoading: boolean; // 상태 로드 중인지 여부
     login: (user: User) => void;
     logout: () => void;
-    setUser: (user: Partial<User>) => void; // 추가된 setUser
+    setUser: (user: Partial<User>) => void;
+    setLoading: (isLoading: boolean) => void; // isLoading 상태를 설정하는 메서드
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -15,6 +17,7 @@ export const useAuthStore = create<AuthState>()(
         (set, get) => ({
             user: null,
             isLoggedIn: null, // 초기값 null
+            isLoading: true, // 로컬 저장소 로드 중
             login: (user: User) => {
                 console.log('User set:', user);
                 set(() => ({
@@ -33,11 +36,15 @@ export const useAuthStore = create<AuthState>()(
                 const currentUser = get().user;
                 if (currentUser) {
                     const updatedUser = { ...currentUser, ...updatedFields };
-                    console.log('User updated:', updatedUser);
                     set(() => ({
                         user: updatedUser,
                     }));
                 }
+            },
+            setLoading: (isLoading: boolean) => {
+                set(() => ({
+                    isLoading,
+                }));
             },
         }),
         {
@@ -53,6 +60,14 @@ export const useAuthStore = create<AuthState>()(
                 removeItem: (name) => {
                     localStorage.removeItem(name);
                 },
+            },
+            onRehydrateStorage: () => {
+                return (state) => {
+                    if (state) {
+                        // 로드 완료 후 isLoading을 false로 설정
+                        state.setLoading(false);
+                    }
+                };
             },
         },
     ),
