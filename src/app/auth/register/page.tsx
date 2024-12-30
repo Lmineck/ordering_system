@@ -91,8 +91,7 @@ export default function Register() {
             });
 
             if (response.ok) {
-                const data = await response.json();
-                alert('회원가입이 완료되었습니다! ID: ' + data.id);
+                alert('회원가입이 완료되었습니다!');
                 router.replace('/auth/login');
             } else {
                 const error = await response.json();
@@ -102,6 +101,10 @@ export default function Register() {
             console.error('회원가입 중 오류 발생:', error);
             alert('회원가입 중 오류가 발생했습니다.');
         }
+    };
+
+    const handleLogin = () => {
+        router.replace('/auth/login');
     };
 
     // 모든 유효성 검사 통과 여부 확인
@@ -216,11 +219,21 @@ export default function Register() {
                     <Button
                         type="submit"
                         variant="outline"
-                        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
+                        className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
                         onClick={handleRegister}
                         disabled={!isFormValid} // 유효성 검사 결과에 따라 버튼 활성화/비활성화
                     >
-                        회원가입
+                        회원가입 하기
+                    </Button>
+                </div>
+                <div className="flex justify-between">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
+                        onClick={handleLogin}
+                    >
+                        로그인 화면으로
                     </Button>
                 </div>
             </div>

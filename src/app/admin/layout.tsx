@@ -53,7 +53,7 @@ export default function AdminLayout({
             </header>
 
             {/* 페이지의 콘텐츠 */}
-            <main>{children}</main>
+            <main className="flex-grow">{children}</main>
         </div>
     );
 }
