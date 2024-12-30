@@ -10,14 +10,22 @@ class OrderService extends FirebaseService<Order> {
     async createOrUpdateOrder(order: Omit<Order, 'id'>): Promise<string> {
         try {
             const dateKey = order.orderDate.slice(0, 8); // yyyymmdd 추출
-            const existingOrders = await this.findByFieldPartialMatch(
-                'orderDate',
-                dateKey,
+            const filters = { branch: order.branch }; // 지점 필터
+            const rangeField = 'orderDate';
+            const rangeStart = `${dateKey}000000`;
+            const rangeEnd = `${dateKey}235959`;
+
+            // 동일 날짜와 지점의 주문 찾기
+            const existingOrders = await this.findByMultipleFieldsWithRange(
+                filters,
+                rangeField,
+                rangeStart,
+                rangeEnd,
             );
 
             if (existingOrders.length > 0) {
-                // 동일 날짜의 주문이 이미 존재
-                const existingOrder = existingOrders[0]; // 첫 번째 주문 가져오기
+                // 동일 날짜와 지점의 주문이 이미 존재
+                const existingOrder = existingOrders[0];
                 const updatedItems = existingOrder.items.map((existingItem) => {
                     const matchingNewItem = order.items.find(
                         (newItem) =>
@@ -51,13 +59,15 @@ class OrderService extends FirebaseService<Order> {
                 );
 
                 const finalItems = [...updatedItems, ...newItems];
-
                 const updatedOrderDate = order.orderDate; // 새로운 주문 시간으로 업데이트
 
-                await this.update(existingOrder.id, {
-                    items: finalItems,
-                    orderDate: updatedOrderDate,
-                });
+                await this.updateByConditions(
+                    filters,
+                    rangeField,
+                    rangeStart,
+                    rangeEnd,
+                    { items: finalItems, orderDate: updatedOrderDate },
+                );
 
                 return existingOrder.id;
             } else {
