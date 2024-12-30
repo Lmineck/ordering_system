@@ -308,7 +308,7 @@ export default function MyPage() {
                             >
                                 <div className="space-y-3">
                                     <div>
-                                        <p className="text-sm font-medium text-muted-foreground">
+                                        <p className="text-sm font-medium text-muted-foreground text-gray-600">
                                             지점
                                         </p>
                                         <p className="text-lg font-semibold">
@@ -316,7 +316,7 @@ export default function MyPage() {
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="text-sm font-medium text-muted-foreground">
+                                        <p className="text-sm font-medium text-muted-foreground  text-gray-600">
                                             이름
                                         </p>
                                         <p className="text-lg font-semibold">
@@ -324,7 +324,7 @@ export default function MyPage() {
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="text-sm font-medium text-muted-foreground">
+                                        <p className="text-sm font-medium text-muted-foreground text-gray-600">
                                             사용자 ID
                                         </p>
                                         <p className="text-lg font-semibold">
@@ -332,7 +332,7 @@ export default function MyPage() {
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="text-sm font-medium text-muted-foreground">
+                                        <p className="text-sm font-medium text-muted-foreground  text-gray-600">
                                             전화번호
                                         </p>
                                         <p className="text-lg font-semibold">
@@ -340,7 +340,7 @@ export default function MyPage() {
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="text-sm font-medium text-muted-foreground">
+                                        <p className="text-sm font-medium text-muted-foreground  text-gray-600">
                                             가입일
                                         </p>
                                         <p className="text-lg font-semibold">
@@ -348,7 +348,7 @@ export default function MyPage() {
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="text-sm font-medium text-muted-foreground">
+                                        <p className="text-sm font-medium text-muted-foreground  text-gray-600">
                                             수정일
                                         </p>
                                         <p className="text-lg font-semibold">

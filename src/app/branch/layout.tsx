@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/stores/authStore';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import Loading from '../loading';
 
 export default function BranchLayout({
     children,
@@ -27,7 +28,7 @@ export default function BranchLayout({
 
     // 리다이렉트 처리 중 로딩 상태를 표시할 수 있음
     if (user?.role !== 'user' || !isLoggedIn) {
-        return <div>Redirecting...</div>;
+        return <Loading />;
     }
 
     return (
@@ -38,8 +39,8 @@ export default function BranchLayout({
                     <Image
                         src="/svgs/home.svg"
                         alt="홈"
-                        width={24}
-                        height={24}
+                        width={30}
+                        height={30}
                         className="cursor-pointer mr-4"
                         onClick={() => router.replace('/branch')}
                     />
@@ -47,7 +48,7 @@ export default function BranchLayout({
                         {user?.branch}
                     </span>
                 </div>
-                <Button onClick={logout} variant="outline" size="lg">
+                <Button onClick={logout} variant="outline" size="default">
                     로그아웃
                 </Button>
             </header>

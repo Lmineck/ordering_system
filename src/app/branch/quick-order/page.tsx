@@ -12,6 +12,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { Item } from '@/types/item';
 import { Order, OrderItem } from '@/types/order';
 import { format } from 'date-fns';
+import Loading from '@/app/loading';
 
 export interface ListItem extends Item {
     quantity: number; // 주문에서만 사용하는 수량
@@ -30,9 +31,11 @@ export default function QuickOrder() {
     );
     const [allCartItems, setAllCartItems] = useState<ListItem[]>([]);
     const [showCart, setShowCart] = useState(false);
+    const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
 
     const fetchAllData = async () => {
         try {
+            setIsLoading(true); // 데이터 로딩 시작
             const categoriesRes = await fetch('/api/categories');
             if (!categoriesRes.ok)
                 throw new Error('Failed to fetch categories');
@@ -62,6 +65,8 @@ export default function QuickOrder() {
             setCategoryItems(itemsMap);
         } catch (error) {
             console.error('Error fetching data:', error);
+        } finally {
+            setIsLoading(false); // 데이터 로딩 완료
         }
     };
 
@@ -150,9 +155,14 @@ export default function QuickOrder() {
         }
     };
 
+    if (isLoading) {
+        // 로딩 화면
+        return <Loading />;
+    }
+
     return (
         <motion.div
-            className="flex flex-col h-screen"
+            className="flex flex-col h-[90vh]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -178,7 +188,7 @@ export default function QuickOrder() {
                     />
                 </ScrollArea>
             </motion.div>
-            <div className="sticky bottom-0 p-4 bg-white border-t">
+            <div className="sticky bottom-0 p-4 bg-white border-t mb-0">
                 <div className="flex justify-between items-center">
                     <span className="text-lg font-semibold">
                         총{' '}

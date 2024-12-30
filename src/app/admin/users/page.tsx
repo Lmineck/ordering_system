@@ -9,6 +9,7 @@ import { ArrowLeft } from 'lucide-react';
 import { User } from '@/types/user';
 import UserService from '@/services/UserService';
 import { formatDate } from '@/utils/formatDate';
+import Loading from '@/app/loading';
 
 const userService = new UserService();
 
@@ -38,11 +39,19 @@ const getRoleLabel = (role: string) => {
 export default function UserManagement() {
     const [users, setUsers] = useState<User[]>([]);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
 
     useEffect(() => {
         const fetchUsers = async () => {
-            const fetchedUsers = await userService.getAllUsers();
-            setUsers(sortUsers(fetchedUsers));
+            setIsLoading(true); // 로딩 시작
+            try {
+                const fetchedUsers = await userService.getAllUsers();
+                setUsers(sortUsers(fetchedUsers));
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            } finally {
+                setIsLoading(false); // 로딩 종료
+            }
         };
         fetchUsers();
     }, []);
@@ -69,6 +78,10 @@ export default function UserManagement() {
         setSelectedUser(null);
     };
 
+    if (isLoading) {
+        return <Loading />;
+    }
+
     return (
         <div className="container mx-auto p-4 max-w-2xl">
             <h1 className="text-3xl font-bold mb-6 text-center">지점 관리</h1>
@@ -92,7 +105,10 @@ export default function UserManagement() {
                     </div>
                     {!selectedUser && (
                         <div className="mt-2">
-                            <Badge variant="secondary">
+                            <Badge
+                                variant="secondary"
+                                className="text-gray-500"
+                            >
                                 총 가입된 지점 수: {users.length}
                             </Badge>
                         </div>
@@ -148,15 +164,17 @@ export default function UserManagement() {
                                                 승인
                                             </Button>
                                         )}
-                                        <Button
-                                            variant="destructive"
-                                            onClick={() =>
-                                                deleteUser(selectedUser.id)
-                                            }
-                                            className="bg-red-500 text-white hover:bg-red-600"
-                                        >
-                                            삭제
-                                        </Button>
+                                        {selectedUser.role !== 'admin' && (
+                                            <Button
+                                                variant="destructive"
+                                                onClick={() =>
+                                                    deleteUser(selectedUser.id)
+                                                }
+                                                className="bg-red-500 text-white hover:bg-red-600"
+                                            >
+                                                삭제
+                                            </Button>
+                                        )}
                                     </div>
                                 </div>
                             </motion.div>

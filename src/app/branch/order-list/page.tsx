@@ -18,9 +18,10 @@ import {
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers';
-import { Order, OrderItem } from '@/types/order';
+import { Order } from '@/types/order';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
+import Loading from '@/app/loading';
 
 const orderService = new FirebaseService<Order>('order');
 
@@ -114,7 +115,7 @@ function BranchOrdersPage() {
             );
 
             // Firestore로 보낼 데이터에서 id 필드를 제외
-            const { id, ...orderData } = order;
+            const { ...orderData } = order;
 
             // 업데이트 요청
             await orderService.update(orderId, {
@@ -148,6 +149,14 @@ function BranchOrdersPage() {
     const handleSnackbarClose = () => {
         setSnackbarMessage(null);
     };
+
+    if (loading) {
+        return <Loading />;
+    }
+
+    if (error) {
+        return <Loading />;
+    }
 
     return (
         <motion.div
@@ -329,7 +338,12 @@ function BranchOrdersPage() {
                     <Button variant="outline" onClick={handleEditDialogClose}>
                         취소
                     </Button>
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleSaveEdit}>저장</Button>
+                    <Button
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        onClick={handleSaveEdit}
+                    >
+                        저장
+                    </Button>
                 </DialogActions>
             </Dialog>
             <Snackbar

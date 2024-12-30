@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 export default function DashboardPage() {
     return (
-        <div className="flex-grow flex items-center justify-center">
+        <div className="flex items-center justify-center h-[75vh] bg-white">
             <div className="w-[320px] h-[400px] bg-white rounded-xl shadow-lg p-4 flex flex-col justify-between">
                 <div className="flex flex-col h-full justify-between">
                     <Link href="/branch/quick-order" className="flex-grow flex">

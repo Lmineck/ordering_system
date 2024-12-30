@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/stores/authStore';
 import { useRouter } from 'next/dist/client/components/navigation';
 import { useEffect } from 'react';
+import Loading from '../loading';
 
 export default function AdminLayout({
     children,
@@ -27,7 +28,7 @@ export default function AdminLayout({
 
     // 리다이렉트 처리 중 로딩 상태를 표시할 수 있음
     if (user?.role !== 'admin' || !isLoggedIn) {
-        return <div>Redirecting...</div>;
+        return <Loading />;
     }
 
     const adminName = '관리자';
@@ -40,20 +41,20 @@ export default function AdminLayout({
                     <Image
                         src="/svgs/home.svg"
                         alt="홈"
-                        width={20}
-                        height={20}
+                        width={30}
+                        height={30}
                         className="cursor-pointer mr-4"
                         onClick={() => router.replace('/admin')}
                     />
-                    <span className="text-lg font-semibold">{adminName}</span>
+                    <span className="text-xl font-semibold">{adminName}</span>
                 </div>
-                <Button onClick={logout} variant="outline" size="lg">
+                <Button onClick={logout} variant="outline" size="default">
                     로그아웃
                 </Button>
             </header>
 
             {/* 페이지의 콘텐츠 */}
-            <main className="flex-grow">{children}</main>
+            <main>{children}</main>
         </div>
     );
 }

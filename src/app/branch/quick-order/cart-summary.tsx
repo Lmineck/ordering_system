@@ -23,10 +23,10 @@ export default function CartSummary({ items, onClose }: CartSummaryProps) {
                 </button>
             </div>
             {items.map((item) => (
-                <div key={item.id} className="flex justify-between">
+                <div key={item.name} className="flex justify-between">
                     <span>{item.name}</span>
                     <span>
-                        {item.unit} x {item.quantity}
+                        {item.quantity} {item.unit}
                     </span>
                 </div>
             ))}

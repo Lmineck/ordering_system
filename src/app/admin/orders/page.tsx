@@ -21,6 +21,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers';
 import { Order, OrderItem } from '@/types/order';
 import { Button } from '@/components/ui/button';
+import Loading from '@/app/loading';
 
 const orderService = new FirebaseService<Order>('order');
 
@@ -84,8 +85,12 @@ function OrdersPage() {
     const handleResetToTotal = () => setSelectedBranch(null);
 
     const isEmpty = selectedBranch
-        ? aggregateItems(
-              branchOrders.filter((order) => order.branch === selectedBranch),
+        ? Object.keys(
+              aggregateItems(
+                  branchOrders.filter(
+                      (order) => order.branch === selectedBranch,
+                  ),
+              ),
           ).length === 0
         : Object.keys(aggregatedItems).length === 0;
 
@@ -94,6 +99,14 @@ function OrdersPage() {
               branchOrders.filter((order) => order.branch === selectedBranch),
           )
         : aggregatedItems;
+
+    if (loading) {
+        return <Loading />;
+    }
+
+    if (error) {
+        return <Loading />;
+    }
 
     return (
         <motion.div

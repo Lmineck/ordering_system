@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion'; // framer-motion import 추가
 import ItemList from './item-list';
 import { Category } from '@/types/category';
+import Loading from '@/app/loading';
 
 export default function ItemManagement() {
     const [categories, setCategories] = useState<Category[]>([]);
@@ -70,8 +72,12 @@ export default function ItemManagement() {
         fetchCategories();
     }, []);
 
+    if (loading) {
+        return <Loading />;
+    }
+
     return (
-        <div className="min-h-scree">
+        <div className="min-h-screen">
             <div className="max-w-7xl mx-auto px-4 py-6">
                 <h1 className="text-2xl font-bold text-gray-900 mb-6">
                     상품 관리
@@ -82,13 +88,15 @@ export default function ItemManagement() {
                         카테고리
                     </h2>
 
-                    {loading ? (
-                        <p>Loading...</p>
-                    ) : (
-                        <div className="flex flex-wrap gap-2 mb-4">
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        <AnimatePresence>
                             {categories.map((category) => (
-                                <div
+                                <motion.div
                                     key={category.id}
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.9 }}
+                                    transition={{ duration: 0.3 }}
                                     className={`flex items-center rounded-full px-4 py-2 text-sm font-medium ${
                                         selectedCategory === category.id
                                             ? 'bg-blue-500 text-white'
@@ -111,10 +119,10 @@ export default function ItemManagement() {
                                     >
                                         <X size={16} />
                                     </button>
-                                </div>
+                                </motion.div>
                             ))}
-                        </div>
-                    )}
+                        </AnimatePresence>
+                    </div>
 
                     <div className="flex flex-col sm:flex-row gap-2">
                         <Input
@@ -133,15 +141,26 @@ export default function ItemManagement() {
                     </div>
                 </div>
 
-                {selectedCategory && (
-                    <ItemList
-                        categoryId={selectedCategory}
-                        categoryName={
-                            categories.find((c) => c.id === selectedCategory)
-                                ?.name || ''
-                        }
-                    />
-                )}
+                <AnimatePresence>
+                    {selectedCategory && (
+                        <motion.div
+                            key={selectedCategory}
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 20 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <ItemList
+                                categoryId={selectedCategory}
+                                categoryName={
+                                    categories.find(
+                                        (c) => c.id === selectedCategory,
+                                    )?.name || ''
+                                }
+                            />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );
