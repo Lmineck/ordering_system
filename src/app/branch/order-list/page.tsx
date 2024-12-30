@@ -276,11 +276,18 @@ function BranchOrdersPage() {
                     <Button onClick={handleDateDialogClose}>닫기</Button>
                 </DialogActions>
             </Dialog>
-
             <Dialog open={isEditDialogOpen} onClose={handleEditDialogClose}>
                 <DialogContent>
                     {editingItem && (
-                        <div className="mb-4">
+                        <>
+                            {/* Item 이름 표시 */}
+                            <div className="mb-4 text-m font-semibold text-gray-800">
+                                {orders.find(
+                                    (o) => o.id === editingItem.orderId,
+                                )?.items[editingItem.itemIndex].name ||
+                                    '아이템 이름 :'}
+                            </div>
+                            {/* 수량 입력 TextField */}
                             <TextField
                                 fullWidth
                                 type="number"
@@ -320,7 +327,7 @@ function BranchOrdersPage() {
                                     )
                                 }
                             />
-                        </div>
+                        </>
                     )}
                 </DialogContent>
                 <DialogActions>
@@ -334,7 +341,6 @@ function BranchOrdersPage() {
                     </Button>
                 </DialogActions>
             </Dialog>
-
             <Snackbar
                 open={!!snackbarMessage}
                 autoHideDuration={3000}

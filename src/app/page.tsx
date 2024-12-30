@@ -11,7 +11,7 @@ export default function Home() {
         // 사용자 권한 검증 및 리다이렉트 처리
         if (isLoggedIn === null) return;
         if (!isLoggedIn) {
-            //redirect('/auth/login');
+            redirect('/auth/login');
         } else if (user?.role === 'user') {
             redirect('/branch');
         } else if (user?.role === 'admin') {
