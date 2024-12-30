@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { motion } from 'framer-motion';
 import CategorySelector from './category-selector';
 import ItemList from './item-list';
 import CartSummary from './cart-summary';
@@ -10,6 +11,7 @@ import { Category } from '@/types/category';
 import { useAuthStore } from '@/stores/authStore';
 import { Item } from '@/types/item';
 import { Order, OrderItem } from '@/types/order';
+import { format } from 'date-fns';
 
 export interface ListItem extends Item {
     quantity: number; // 주문에서만 사용하는 수량
@@ -29,7 +31,6 @@ export default function QuickOrder() {
     const [allCartItems, setAllCartItems] = useState<ListItem[]>([]);
     const [showCart, setShowCart] = useState(false);
 
-    // 페이지 초기 로드: 모든 카테고리와 아이템 데이터 가져오기
     const fetchAllData = async () => {
         try {
             const categoriesRes = await fetch('/api/categories');
@@ -37,7 +38,6 @@ export default function QuickOrder() {
                 throw new Error('Failed to fetch categories');
             const categoriesData: Category[] = await categoriesRes.json();
 
-            // 모든 카테고리의 아이템을 가져오기
             const allItemsPromises = categoriesData.map(async (category) => {
                 const itemsRes = await fetch(
                     `/api/items?category=${encodeURIComponent(category.name)}`,
@@ -50,13 +50,13 @@ export default function QuickOrder() {
                 return {
                     [category.id]: itemsData.map((item) => ({
                         ...item,
-                        quantity: 0, // 초기 수량은 0
+                        quantity: 0,
                     })),
                 };
             });
 
             const allItems = await Promise.all(allItemsPromises);
-            const itemsMap = Object.assign({}, ...allItems); // 모든 카테고리 아이템을 합침
+            const itemsMap = Object.assign({}, ...allItems);
 
             setCategories(categoriesData);
             setCategoryItems(itemsMap);
@@ -65,12 +65,10 @@ export default function QuickOrder() {
         }
     };
 
-    // 초기 데이터 로드
     useEffect(() => {
         fetchAllData();
     }, []);
 
-    // 카테고리 선택 시 아이템 설정
     useEffect(() => {
         if (selectedCategory && categoryItems[selectedCategory]) {
             const updatedItems = categoryItems[selectedCategory].map((item) => {
@@ -79,7 +77,7 @@ export default function QuickOrder() {
                 );
                 return {
                     ...item,
-                    quantity: existingCartItem ? existingCartItem.quantity : 0, // 기존 수량 유지
+                    quantity: existingCartItem ? existingCartItem.quantity : 0,
                 };
             });
             setItems(updatedItems);
@@ -88,46 +86,38 @@ export default function QuickOrder() {
         }
     }, [selectedCategory, categoryItems, allCartItems]);
 
-    // 수량 조정
     const updateItemQuantity = (itemId: string, newQuantity: number) => {
         const updatedItems = items.map((item) =>
             item.id === itemId ? { ...item, quantity: newQuantity } : item,
         );
         setItems(updatedItems);
 
-        // 전체 카트 업데이트
         const updatedAllCartItems = [...allCartItems];
-        updatedItems
-            .filter((item) => item.quantity > 0)
-            .forEach((item) => {
-                const existingItemIndex = updatedAllCartItems.findIndex(
-                    (cartItem) => cartItem.id === item.id,
-                );
+
+        updatedItems.forEach((item) => {
+            const existingItemIndex = updatedAllCartItems.findIndex(
+                (cartItem) => cartItem.id === item.id,
+            );
+
+            if (item.quantity > 0) {
                 if (existingItemIndex > -1) {
-                    // 이미 있는 아이템이면 수량 업데이트
                     updatedAllCartItems[existingItemIndex].quantity =
                         item.quantity;
                 } else {
-                    // 새로운 아이템 추가
                     updatedAllCartItems.push(item);
                 }
-            });
+            } else if (existingItemIndex > -1) {
+                updatedAllCartItems.splice(existingItemIndex, 1);
+            }
+        });
 
-        setAllCartItems(
-            updatedAllCartItems.filter((item) => item.quantity > 0),
-        );
+        setAllCartItems(updatedAllCartItems);
     };
 
-    // 주문하기
     const placeOrder = async () => {
         const now = new Date();
-        const formattedTime = `${now.getFullYear()}${String(
-            now.getMonth() + 1,
-        ).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(
-            now.getHours(),
-        ).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+        const formattedTime = format(now, 'yyyyMMddHHmmss');
 
-        // ListItem 배열을 OrderItem 배열로 변환
         const orderItems: OrderItem[] = allCartItems.map((item) => ({
             name: item.name,
             category: item.category,
@@ -139,7 +129,7 @@ export default function QuickOrder() {
             items: orderItems,
             orderDate: formattedTime,
             branch: user?.branch ?? 'Unknown Branch',
-            status: 'pending', // 초기 상태
+            status: 'pending',
         };
 
         try {
@@ -161,25 +151,33 @@ export default function QuickOrder() {
     };
 
     return (
-        <div className="flex flex-col h-screen">
-            {/* 카테고리 선택 */}
-            <div className="p-4 bg-gray-100">
+        <motion.div
+            className="flex flex-col h-screen"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+        >
+            <div className="p-4">
                 <CategorySelector
                     categories={categories}
                     selectedCategory={selectedCategory}
                     onSelectCategory={setSelectedCategory}
                 />
             </div>
-            {/* 아이템 리스트 */}
-            <div className="flex-grow relative">
+            <motion.div
+                className="flex-grow relative"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
+            >
                 <ScrollArea className="h-full p-4">
                     <ItemList
                         items={items}
                         onUpdateQuantity={updateItemQuantity}
                     />
                 </ScrollArea>
-            </div>
-            {/* 장바구니 정보 */}
+            </motion.div>
             <div className="sticky bottom-0 p-4 bg-white border-t">
                 <div className="flex justify-between items-center">
                     <span className="text-lg font-semibold">
@@ -193,17 +191,26 @@ export default function QuickOrder() {
                     <Button onClick={() => setShowCart(true)}>담기</Button>
                 </div>
             </div>
-            {/* 장바구니 요약 */}
             {showCart && (
-                <div
+                <motion.div
                     className="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center p-4"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
                     onClick={(e) => {
                         if (e.target === e.currentTarget) {
                             setShowCart(false);
                         }
                     }}
                 >
-                    <div className="bg-white rounded-t-xl w-full max-w-md p-4">
+                    <motion.div
+                        className="bg-white rounded-t-xl w-full max-w-md p-4"
+                        initial={{ y: '100%' }}
+                        animate={{ y: 0 }}
+                        exit={{ y: '100%' }}
+                        transition={{ type: 'spring', stiffness: 300 }}
+                    >
                         <CartSummary
                             items={allCartItems}
                             onClose={() => setShowCart(false)}
@@ -211,9 +218,9 @@ export default function QuickOrder() {
                         <Button onClick={placeOrder} className="w-full mt-4">
                             주문하기
                         </Button>
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
             )}
-        </div>
+        </motion.div>
     );
 }
