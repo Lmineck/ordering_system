@@ -7,7 +7,6 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-    Button,
     Dialog,
     DialogActions,
     DialogContent,
@@ -21,6 +20,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers';
 import { Order, OrderItem } from '@/types/order';
 import { useAuthStore } from '@/stores/authStore';
+import { Button } from '@/components/ui/button';
 
 const orderService = new FirebaseService<Order>('order');
 
@@ -208,9 +208,7 @@ function BranchOrdersPage() {
                                                 </td>
                                                 <td className="py-3 text-right flex justify-end space-x-2">
                                                     <Button
-                                                        variant="contained"
-                                                        color="primary"
-                                                        size="small"
+                                                        className="text-xs text-white bg-green-500 hover:bg-green-600"
                                                         disabled={!isToday}
                                                         onClick={() =>
                                                             handleEditClick(
@@ -222,9 +220,7 @@ function BranchOrdersPage() {
                                                         수정
                                                     </Button>
                                                     <Button
-                                                        variant="contained"
-                                                        color="secondary"
-                                                        size="small"
+                                                        className="text-xs text-white bg-red-500 hover:bg-red-600"
                                                         disabled={!isToday}
                                                         onClick={() =>
                                                             handleDeleteClick(
@@ -246,8 +242,7 @@ function BranchOrdersPage() {
                 </CardContent>
                 <div className="text-center p-4 flex justify-between space-x-4">
                     <Button
-                        variant="contained"
-                        className="w-full h-12 text-lg font-semibold bg-green-600 hover:bg-green-700 text-white"
+                        className="w-full h-12 font-semibold bg-blue-600 hover:bg-blue-700 text-white"
                         onClick={() => setIsDateDialogOpen(true)}
                     >
                         날짜 변경
@@ -331,14 +326,10 @@ function BranchOrdersPage() {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleEditDialogClose}>취소</Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleSaveEdit}
-                    >
-                        저장
+                    <Button variant="outline" onClick={handleEditDialogClose}>
+                        취소
                     </Button>
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleSaveEdit}>저장</Button>
                 </DialogActions>
             </Dialog>
             <Snackbar

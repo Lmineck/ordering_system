@@ -7,7 +7,6 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-    Button,
     Dialog,
     DialogActions,
     DialogContent,
@@ -21,6 +20,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers';
 import { Order, OrderItem } from '@/types/order';
+import { Button } from '@/components/ui/button';
 
 const orderService = new FirebaseService<Order>('order');
 
@@ -159,24 +159,21 @@ function OrdersPage() {
                 </CardContent>
                 <div className="text-center py-4 flex space-x-4 px-4">
                     <Button
-                        variant="contained"
-                        className="w-full h-12 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white"
+                        className="w-full h-12 font-semibold bg-blue-600 hover:bg-blue-700 text-white"
                         onClick={handleDateDialogOpen}
                     >
                         다른 날짜 선택
                     </Button>
                     {selectedBranch ? (
                         <Button
-                            variant="contained"
-                            className="w-full h-12 text-lg font-semibold bg-green-600 hover:bg-green-700 text-white"
+                            className="w-full h-12 font-semibold bg-green-600 hover:bg-green-700 text-white"
                             onClick={handleResetToTotal}
                         >
                             총 주문 합계 보기
                         </Button>
                     ) : (
                         <Button
-                            variant="contained"
-                            className="w-full h-12 text-lg font-semibold bg-green-600 hover:bg-green-700 text-white"
+                            className="w-full h-12 font-semibold bg-green-600 hover:bg-green-700 text-white"
                             onClick={handleBranchDialogOpen}
                         >
                             지점별 주문 보기
