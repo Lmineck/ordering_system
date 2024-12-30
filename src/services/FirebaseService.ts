@@ -256,6 +256,67 @@ class FirebaseService<T extends DocumentData & { id?: string }> {
             throw error;
         }
     }
+
+    async findByMultipleFieldsWithRange(
+        filters: Record<string, unknown>,
+        rangeField: string,
+        rangeStart: string,
+        rangeEnd: string,
+    ): Promise<T[]> {
+        try {
+            const conditions = Object.entries(filters).map(([field, value]) =>
+                where(field, '==', value),
+            );
+
+            const q = query(
+                this.getCollectionRef(),
+                ...conditions,
+                where(rangeField, '>=', rangeStart),
+                where(rangeField, '<=', rangeEnd),
+            );
+
+            const querySnapshot = await getDocs(q);
+            return querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as T[];
+        } catch (error) {
+            console.error(
+                'Error finding documents with range and filters:',
+                error,
+            );
+            throw error;
+        }
+    }
+
+    async updateByConditions(
+        filters: Record<string, unknown>,
+        rangeField: string,
+        rangeStart: string,
+        rangeEnd: string,
+        updateData: Partial<Omit<T, 'id'>>,
+    ): Promise<string | null> {
+        try {
+            const existingDocs = await this.findByMultipleFieldsWithRange(
+                filters,
+                rangeField,
+                rangeStart,
+                rangeEnd,
+            );
+
+            if (existingDocs.length > 0) {
+                const docToUpdate = existingDocs[0];
+                if (docToUpdate.id) {
+                    await this.update(docToUpdate.id, updateData);
+                    return docToUpdate.id;
+                }
+            }
+            return null;
+        } catch (error) {
+            console.error('Error updating document by conditions:', error);
+            throw error;
+        }
+    }
 }
 
 export default FirebaseService;
