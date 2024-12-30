@@ -1,322 +1,351 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { format, parseISO } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Package } from 'lucide-react';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardFooter,
-} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import React, { useEffect, useState } from 'react';
+import FirebaseService from '@/services/FirebaseService';
+import { format, isSameDay } from 'date-fns';
+import { motion } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+    Snackbar,
+    Alert,
+} from '@mui/material';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DatePicker } from '@mui/x-date-pickers';
+import { Order, OrderItem } from '@/types/order';
+import { useAuthStore } from '@/stores/authStore';
 
-export interface OrderItem {
-    id: string;
-    name: string;
-    unit: string;
-    quantity: number;
-}
+const orderService = new FirebaseService<Order>('order');
 
-export interface Order {
-    id: string;
-    date: string;
-    status: 'pending' | 'processing' | 'completed' | 'cancelled';
-    items: OrderItem[];
-}
+function BranchOrdersPage() {
+    const { user } = useAuthStore();
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+    const [editingItem, setEditingItem] = useState<{
+        orderId: string;
+        itemIndex: number;
+    } | null>(null);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [isDateDialogOpen, setIsDateDialogOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
 
-export interface PaginatedOrders {
-    orders: Order[];
-    totalPages: number;
-    currentPage: number;
-}
+    const branchName = user?.branch;
 
-const ITEMS_PER_PAGE = 5;
+    const isToday = selectedDate ? isSameDay(selectedDate, new Date()) : false;
 
-export default function OrderHistory() {
-    const [paginatedOrders, setPaginatedOrders] = useState<PaginatedOrders>({
-        orders: [],
-        totalPages: 0,
-        currentPage: 1,
-    });
-    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const fetchBranchOrders = async (date: Date | null) => {
+        try {
+            if (!date) return;
 
-    useEffect(() => {
-        // 여기서 실제 API 호출을 통해 주문 데이터를 가져올 수 있습니다.
-        // 이 예제에서는 더미 데이터를 사용합니다.
-        const dummyOrders: Order[] = Array.from({ length: 20 }, (_, i) => ({
-            id: `${i + 1}`,
-            date: new Date(2023, 5, i + 1, 10, 0).toISOString(),
-            status: ['pending', 'processing', 'completed', 'cancelled'][
-                Math.floor(Math.random() * 4)
-            ] as Order['status'],
-            items: [
-                {
-                    id: `${i}a`,
-                    name: '사과',
-                    unit: '개',
-                    quantity: Math.floor(Math.random() * 10) + 1,
-                },
-                {
-                    id: `${i}b`,
-                    name: '바나나',
-                    unit: '송이',
-                    quantity: Math.floor(Math.random() * 5) + 1,
-                },
-            ],
-        }));
+            setLoading(true);
 
-        const totalPages = Math.ceil(dummyOrders.length / ITEMS_PER_PAGE);
-        setPaginatedOrders({
-            orders: dummyOrders.slice(0, ITEMS_PER_PAGE),
-            totalPages,
-            currentPage: 1,
-        });
-    }, []);
+            const dateString = format(date, 'yyyyMMdd');
 
-    const getStatusColor = (status: Order['status']) => {
-        switch (status) {
-            case 'pending':
-                return 'bg-yellow-500';
-            case 'processing':
-                return 'bg-blue-500';
-            case 'completed':
-                return 'bg-green-500';
-            case 'cancelled':
-                return 'bg-red-500';
-            default:
-                return 'bg-gray-500';
+            const orders = await orderService.findOrdersByBranchAndDate(
+                branchName,
+                dateString,
+            );
+            setOrders(orders);
+        } catch (err) {
+            setError('주문 데이터를 불러오는데 실패했습니다.');
+            console.error(err);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleOrderClick = (order: Order) => {
-        setSelectedOrder(order);
+    useEffect(() => {
+        fetchBranchOrders(selectedDate);
+    }, [selectedDate]);
+
+    const handleDateChange = (date: Date | null) => {
+        setSelectedDate(date);
+        setIsDateDialogOpen(false);
     };
 
-    const handleCancelOrder = (orderId: string) => {
-        // 여기서 실제 API 호출을 통해 주문을 취소할 수 있습니다.
-        console.log(`주문 ${orderId} 취소`);
-        setPaginatedOrders((prev) => ({
-            ...prev,
-            orders: prev.orders.map((order) =>
-                order.id === orderId
-                    ? { ...order, status: 'cancelled' }
-                    : order,
-            ),
-        }));
-        setSelectedOrder(null);
+    const handleEditClick = (orderId: string, itemIndex: number) => {
+        setEditingItem({ orderId, itemIndex });
+        setIsEditDialogOpen(true);
     };
 
-    const changePage = (newPage: number) => {
-        // 실제 구현에서는 여기서 API를 호출하여 새 페이지 데이터를 가져와야 합니다.
-        const startIndex = (newPage - 1) * ITEMS_PER_PAGE;
-        const endIndex = startIndex + ITEMS_PER_PAGE;
-        setPaginatedOrders((prev) => ({
-            ...prev,
-            orders: Array.from({ length: 20 }, (_, i) => ({
-                id: `${i + 1 + startIndex}`,
-                date: new Date(
-                    2023,
-                    5,
-                    i + 1 + startIndex,
-                    10,
-                    0,
-                ).toISOString(),
-                status: ['pending', 'processing', 'completed', 'cancelled'][
-                    Math.floor(Math.random() * 4)
-                ] as Order['status'],
-                items: [
-                    {
-                        id: `${i + startIndex}a`,
-                        name: '사과',
-                        unit: '개',
-                        quantity: Math.floor(Math.random() * 10) + 1,
-                    },
-                    {
-                        id: `${i + startIndex}b`,
-                        name: '바나나',
-                        unit: '송이',
-                        quantity: Math.floor(Math.random() * 5) + 1,
-                    },
-                ],
-            })).slice(0, ITEMS_PER_PAGE),
-            currentPage: newPage,
-        }));
+    const handleDeleteClick = async (orderId: string, itemIndex: number) => {
+        try {
+            const order = orders.find((o) => o.id === orderId);
+            if (!order) return;
+
+            const updatedItems = order.items.filter(
+                (_, idx) => idx !== itemIndex,
+            );
+
+            await orderService.update(orderId, { items: updatedItems });
+
+            setOrders((prevOrders) =>
+                prevOrders.map((o) =>
+                    o.id === orderId ? { ...o, items: updatedItems } : o,
+                ),
+            );
+            setSnackbarMessage('삭제되었습니다.');
+        } catch (error) {
+            console.error('주문 삭제 중 오류 발생:', error);
+            alert('주문을 삭제하는 중 문제가 발생했습니다.');
+        }
+    };
+
+    const handleSaveEdit = async () => {
+        if (!editingItem) return;
+
+        const { orderId, itemIndex } = editingItem;
+        const order = orders.find((o) => o.id === orderId);
+        if (!order) return;
+
+        try {
+            // 수정된 아이템 목록 생성
+            const updatedItems = order.items.map((item, idx) =>
+                idx === itemIndex ? { ...item, quantity: item.quantity } : item,
+            );
+
+            // Firestore로 보낼 데이터에서 id 필드를 제외
+            const { id, ...orderData } = order;
+
+            // 업데이트 요청
+            await orderService.update(orderId, {
+                ...orderData,
+                items: updatedItems,
+            });
+
+            // UI 상태 업데이트
+            setOrders((prevOrders) =>
+                prevOrders.map((o) =>
+                    o.id === orderId ? { ...o, items: updatedItems } : o,
+                ),
+            );
+            setSnackbarMessage('수정되었습니다.');
+            setIsEditDialogOpen(false);
+        } catch (error) {
+            console.error('주문 수정 중 오류 발생:', error);
+            alert('주문을 수정하는 중 문제가 발생했습니다.');
+        }
+    };
+
+    const handleEditDialogClose = () => {
+        setIsEditDialogOpen(false);
+        setEditingItem(null);
+    };
+
+    const handleDateDialogClose = () => {
+        setIsDateDialogOpen(false);
+    };
+
+    const handleSnackbarClose = () => {
+        setSnackbarMessage(null);
     };
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-3xl">
-            <h1 className="text-3xl font-bold mb-6 text-center">주문 내역</h1>
-            <AnimatePresence mode="wait">
-                {selectedOrder ? (
-                    <motion.div
-                        key="order-detail"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <Card className="bg-white shadow-lg">
-                            <CardHeader>
-                                <CardTitle className="flex items-center justify-between">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => setSelectedOrder(null)}
-                                    >
-                                        <ChevronLeft className="h-6 w-6" />
-                                    </Button>
-                                    <span>
-                                        {format(
-                                            parseISO(selectedOrder.date),
-                                            'yyyy년 MM월 dd일 EEEE',
-                                            { locale: ko },
-                                        )}
-                                    </span>
-                                    <Badge variant="outline">
-                                        {selectedOrder.status}
-                                    </Badge>
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <ScrollArea className="h-[50vh]">
-                                    <ul className="space-y-4">
-                                        {selectedOrder.items.map((item) => (
-                                            <li
-                                                key={item.id}
-                                                className="flex items-center justify-between p-4 bg-gray-100 rounded-lg"
+        <motion.div
+            key="branch-orders-page"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+        >
+            <Card className="bg-white shadow-lg w-full max-w-xl mx-auto">
+                <CardHeader className="text-center">
+                    <CardTitle className="text-2xl font-semibold">
+                        {`${branchName} 주문 내역`}
+                    </CardTitle>
+                    <div className="text-m text-gray-500">
+                        {format(selectedDate || new Date(), 'yyyy년 MM월 dd일')}
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    {orders.length === 0 ? (
+                        <div className="h-[60vh] flex items-center justify-center text-gray-500">
+                            해당 날짜의 주문 내역이 없습니다.
+                        </div>
+                    ) : (
+                        <ScrollArea className="h-[60vh]">
+                            <table className="w-full border-collapse">
+                                <thead>
+                                    <tr className="border-b">
+                                        <th className="py-2 text-left">
+                                            품목명
+                                        </th>
+                                        <th className="py-2 text-right">
+                                            수량
+                                        </th>
+                                        <th className="py-2 text-right">
+                                            단위
+                                        </th>
+                                        <th className="py-2 text-right">
+                                            작업
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {orders.map((order) =>
+                                        order.items.map((item, idx) => (
+                                            <tr
+                                                key={`${order.id}-${idx}`}
+                                                className="border-b last:border-b-0"
                                             >
-                                                <div className="flex items-center space-x-4">
-                                                    <Package className="h-6 w-6 text-primary" />
-                                                    <div>
-                                                        <p className="font-medium">
-                                                            {item.name}
-                                                        </p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            {item.quantity}{' '}
-                                                            {item.unit}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </ScrollArea>
-                                {selectedOrder.status !== 'cancelled' && (
-                                    <Button
-                                        variant="destructive"
-                                        className="w-full mt-6"
-                                        onClick={() =>
-                                            handleCancelOrder(selectedOrder.id)
-                                        }
-                                    >
-                                        주문 취소
-                                    </Button>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-                ) : (
-                    <motion.div
-                        key="order-list"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.3 }}
+                                                <td className="py-3">
+                                                    {item.name}
+                                                </td>
+                                                <td className="py-3 text-right">
+                                                    {item.quantity}
+                                                </td>
+                                                <td className="py-3 text-right">
+                                                    {item.unit}
+                                                </td>
+                                                <td className="py-3 text-right flex justify-end space-x-2">
+                                                    <Button
+                                                        variant="contained"
+                                                        color="primary"
+                                                        size="small"
+                                                        disabled={!isToday}
+                                                        onClick={() =>
+                                                            handleEditClick(
+                                                                order.id!,
+                                                                idx,
+                                                            )
+                                                        }
+                                                    >
+                                                        수정
+                                                    </Button>
+                                                    <Button
+                                                        variant="contained"
+                                                        color="secondary"
+                                                        size="small"
+                                                        disabled={!isToday}
+                                                        onClick={() =>
+                                                            handleDeleteClick(
+                                                                order.id!,
+                                                                idx,
+                                                            )
+                                                        }
+                                                    >
+                                                        삭제
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        )),
+                                    )}
+                                </tbody>
+                            </table>
+                        </ScrollArea>
+                    )}
+                </CardContent>
+                <div className="text-center p-4 flex justify-between space-x-4">
+                    <Button
+                        variant="contained"
+                        className="w-full h-12 text-lg font-semibold bg-green-600 hover:bg-green-700 text-white"
+                        onClick={() => setIsDateDialogOpen(true)}
                     >
-                        <Card className="bg-white shadow-lg">
-                            <CardContent className="p-0">
-                                <ScrollArea className="h-[60vh]">
-                                    <ul className="divide-y">
-                                        {paginatedOrders.orders.map(
-                                            (order, index) => (
-                                                <motion.li
-                                                    key={order.id}
-                                                    whileHover={{
-                                                        backgroundColor:
-                                                            'rgba(0,0,0,0.05)',
-                                                    }}
-                                                    onClick={() =>
-                                                        handleOrderClick(order)
-                                                    }
-                                                    className={`flex items-center justify-between p-4 cursor-pointer ${
-                                                        index ===
-                                                        ITEMS_PER_PAGE - 1
-                                                            ? 'border-b-2 border-gray-200'
-                                                            : ''
-                                                    }`}
-                                                >
-                                                    <div>
-                                                        <p className="font-medium">
-                                                            {format(
-                                                                parseISO(
-                                                                    order.date,
-                                                                ),
-                                                                'yyyy년 MM월 dd일 EEEE',
-                                                                { locale: ko },
-                                                            )}
-                                                        </p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            {format(
-                                                                parseISO(
-                                                                    order.date,
-                                                                ),
-                                                                'HH:mm',
-                                                            )}
-                                                        </p>
-                                                    </div>
-                                                    <div className="flex items-center space-x-2">
-                                                        <Badge variant="outline">
-                                                            {order.status}
-                                                        </Badge>
-                                                        <div
-                                                            className={`w-3 h-3 rounded-full ${getStatusColor(order.status)}`}
-                                                        ></div>
-                                                    </div>
-                                                </motion.li>
-                                            ),
-                                        )}
-                                    </ul>
-                                </ScrollArea>
-                            </CardContent>
-                            <CardFooter className="flex justify-between">
-                                <Button
-                                    onClick={() =>
-                                        changePage(
-                                            paginatedOrders.currentPage - 1,
-                                        )
-                                    }
-                                    disabled={paginatedOrders.currentPage === 1}
-                                >
-                                    이전 페이지
-                                </Button>
-                                <span>
-                                    {paginatedOrders.currentPage} /{' '}
-                                    {paginatedOrders.totalPages}
-                                </span>
-                                <Button
-                                    onClick={() =>
-                                        changePage(
-                                            paginatedOrders.currentPage + 1,
-                                        )
-                                    }
-                                    disabled={
-                                        paginatedOrders.currentPage ===
-                                        paginatedOrders.totalPages
-                                    }
-                                >
-                                    다음 페이지
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
+                        날짜 변경
+                    </Button>
+                </div>
+            </Card>
+
+            <Dialog open={isDateDialogOpen} onClose={handleDateDialogClose}>
+                <DialogTitle>날짜 선택</DialogTitle>
+                <DialogContent>
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                            value={selectedDate}
+                            onChange={handleDateChange}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    fullWidth
+                                    className="mt-2"
+                                />
+                            )}
+                        />
+                    </LocalizationProvider>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleDateDialogClose}>닫기</Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={isEditDialogOpen} onClose={handleEditDialogClose}>
+                <DialogContent>
+                    {editingItem && (
+                        <div className="mb-4">
+                            <TextField
+                                fullWidth
+                                type="number"
+                                label="수량"
+                                value={
+                                    orders.find(
+                                        (o) => o.id === editingItem.orderId,
+                                    )?.items[editingItem.itemIndex].quantity ||
+                                    ''
+                                }
+                                onChange={(e) =>
+                                    setOrders((prevOrders) =>
+                                        prevOrders.map((order) =>
+                                            !editingItem ||
+                                            order.id === editingItem.orderId
+                                                ? {
+                                                      ...order,
+                                                      items: order.items.map(
+                                                          (item, idx) =>
+                                                              !editingItem ||
+                                                              idx ===
+                                                                  editingItem.itemIndex
+                                                                  ? {
+                                                                        ...item,
+                                                                        quantity:
+                                                                            Number(
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                            ),
+                                                                    }
+                                                                  : item,
+                                                      ),
+                                                  }
+                                                : order,
+                                        ),
+                                    )
+                                }
+                            />
+                        </div>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleEditDialogClose}>취소</Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleSaveEdit}
+                    >
+                        저장
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Snackbar
+                open={!!snackbarMessage}
+                autoHideDuration={3000}
+                onClose={handleSnackbarClose}
+            >
+                <Alert onClose={handleSnackbarClose} severity="success">
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
+        </motion.div>
     );
 }
+
+export default BranchOrdersPage;

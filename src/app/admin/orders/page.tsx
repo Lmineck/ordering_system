@@ -105,11 +105,14 @@ function OrdersPage() {
         >
             <Card className="bg-white shadow-lg w-full max-w-xl mx-auto">
                 <CardHeader className="text-center">
-                    <CardTitle className="text-xl font-semibold">
+                    <CardTitle className="text-2xl font-semibold">
                         {selectedBranch
-                            ? `${selectedBranch} 주문 내역 (${format(selectedDate || new Date(), 'yyyy년 MM월 dd일')})`
-                            : `주문 합계 (${format(selectedDate || new Date(), 'yyyy년 MM월 dd일')})`}
+                            ? `${selectedBranch} 주문 내역`
+                            : '주문 합계'}
                     </CardTitle>
+                    <div className="text-m text-gray-500">
+                        {format(selectedDate || new Date(), 'yyyy년 MM월 dd일')}
+                    </div>
                 </CardHeader>
                 <CardContent>
                     {isEmpty ? (

@@ -226,6 +226,36 @@ class FirebaseService<T extends DocumentData & { id?: string }> {
             throw error;
         }
     }
+
+    async findOrdersByBranchAndDate(
+        branch: string | undefined,
+        date: string,
+    ): Promise<T[]> {
+        try {
+            const startOfDay = `${date}000000`; // 시작 시간
+            const endOfDay = `${date}235959`; // 끝 시간
+
+            // Firestore 쿼리 작성
+            const q = query(
+                this.getCollectionRef(),
+                where('branch', '==', branch),
+                where('orderDate', '>=', startOfDay),
+                where('orderDate', '<=', endOfDay),
+            );
+
+            // 쿼리 실행
+            const querySnapshot = await getDocs(q);
+
+            // 결과 매핑
+            return querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as T[];
+        } catch (error) {
+            console.error('Error finding orders by branch and date:', error);
+            throw error;
+        }
+    }
 }
 
 export default FirebaseService;
