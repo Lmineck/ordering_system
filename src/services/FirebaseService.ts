@@ -110,7 +110,6 @@ class FirebaseService<T extends DocumentData & { id?: string }> {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async findByField(field: string, value: any): Promise<T[]> {
         try {
             const q = query(this.getCollectionRef(), where(field, '==', value));
@@ -125,7 +124,6 @@ class FirebaseService<T extends DocumentData & { id?: string }> {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async findOneByField(field: string, value: any): Promise<T | null> {
         try {
             const q = query(this.getCollectionRef(), where(field, '==', value));
@@ -143,7 +141,6 @@ class FirebaseService<T extends DocumentData & { id?: string }> {
     }
 
     // 다중 조건 필터링
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async findByMultipleFields(filters: Record<string, any>): Promise<T[]> {
         try {
             const conditions = Object.entries(filters).map(([field, value]) =>

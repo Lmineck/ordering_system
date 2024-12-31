@@ -1,5 +1,6 @@
 import { Item } from '@/types/item';
 import FirebaseService from './FirebaseService';
+import { ImageUploadService } from './ImageUploadService';
 
 class ItemService extends FirebaseService<Item> {
     constructor() {
@@ -33,25 +34,14 @@ class ItemService extends FirebaseService<Item> {
 
     // 아이템 삭제하기
     async deleteItem(itemId: string): Promise<void> {
-        try {
-            await this.delete(itemId);
-        } catch (error) {
-            console.error(`Error deleting item with ID: ${itemId}`, error);
-            throw error;
-        }
-    }
+        const item = await this.read(itemId);
 
-    // 아이템 수정하기
-    async updateItem(
-        itemId: string,
-        updates: Partial<Omit<Item, 'id'>>,
-    ): Promise<void> {
-        try {
-            await this.update(itemId, updates);
-        } catch (error) {
-            console.error(`Error updating item with ID: ${itemId}`, error);
-            throw error;
+        if (item?.imgUrl !== '') {
+            ImageUploadService.deleteImage(item!.imgUrl); // 이미지 삭제
         }
+
+        await this.delete(itemId); // Firebase에서 아이템 삭제
+        console.log(`Item with ID ${itemId} deleted successfully`);
     }
 }
 

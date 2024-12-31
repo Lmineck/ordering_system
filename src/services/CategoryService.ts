@@ -1,6 +1,7 @@
 import { Category } from '@/types/category';
 import FirebaseService from './FirebaseService';
 import ItemService from './ItemService';
+import { ImageUploadService } from './ImageUploadService';
 
 class CategoryService extends FirebaseService<Category> {
     private itemService: ItemService;
@@ -44,7 +45,10 @@ class CategoryService extends FirebaseService<Category> {
             await this.itemService.deleteItem(item.id!);
         }
 
-        // 4. 카테고리 삭제
+        // 4. 카테고리 이미지 폴더더 삭제
+        await ImageUploadService.deleteCategoryFolder(category.name);
+
+        // 5. 카테고리 삭제
         await this.delete(id);
 
         console.log(

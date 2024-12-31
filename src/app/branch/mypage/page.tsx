@@ -176,13 +176,7 @@ export default function MyPage() {
                                         id="userId"
                                         name="userId"
                                         value={formData.userId}
-                                        onChange={handleInputChange}
-                                        placeholder="영문 소문자 및 숫자, 6~12자"
-                                        className={`${
-                                            isUserIdValid
-                                                ? 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                                                : 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                                        }`}
+                                        disabled
                                     />
                                     {!isUserIdValid && (
                                         <p className="text-sm text-red-500">

@@ -6,11 +6,10 @@ const itemService = new ItemService();
 // DELETE: 아이템 삭제
 export async function DELETE(
     req: NextRequest,
-    context: { params: { id: string } }, // context에서 params를 가져옵니다.
+    { params }: { params: Promise<{ id: string }> },
 ) {
     try {
-        const { params } = context;
-        const { id } = params;
+        const { id } = await params;
 
         if (!id) {
             return NextResponse.json(
@@ -36,11 +35,10 @@ export async function DELETE(
 // PATCH: 아이템 수정
 export async function PATCH(
     req: NextRequest,
-    context: { params: { id: string } }, // context에서 params를 가져옵니다.
+    { params }: { params: Promise<{ id: string }> },
 ) {
     try {
-        const { params } = context;
-        const { id } = params;
+        const { id } = await params;
         const updates = await req.json();
 
         if (!id) {
