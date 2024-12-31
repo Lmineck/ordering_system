@@ -150,7 +150,8 @@ export default function ItemList({ categoryName }: ItemListProps) {
                 {items.map((item) => (
                     <div key={item.id} className="bg-gray-50 rounded-lg p-4">
                         <div className="flex items-center">
-                            <div className="relative w-24 h-24 mr-4">
+                            {/* 이미지 */}
+                            <div className="flex items-center justify-center relative w-24 h-24 mr-4">
                                 <Image
                                     src={item.imgUrl || '/svgs/placeholder.svg'}
                                     alt={item.name}
@@ -159,20 +160,31 @@ export default function ItemList({ categoryName }: ItemListProps) {
                                     className="rounded-md"
                                 />
                             </div>
-                            <div className="flex-grow">
-                                <h3 className="font-semibold text-lg">
-                                    {item.name}
-                                </h3>
-                                <p className="text-gray-600">{item.unit}</p>
-                            </div>
-                            <div className="flex space-x-2">
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => deleteItem(item.id)}
-                                >
-                                    <Trash2 size={20} />
-                                </Button>
+
+                            {/* 오른쪽 내용 */}
+                            <div className="flex flex-col sm:flex-row flex-grow sm:items-center">
+                                {/* 이름 및 단위 */}
+                                <div className="flex-grow mt-2 sm:mt-0">
+                                    <h3 className="font-semibold text-base sm:text-lg">
+                                        {item.name}
+                                    </h3>
+                                    <p className="text-gray-600">{item.unit}</p>
+                                </div>
+
+                                {/* 버튼 */}
+                                <div className="flex justify-end mt-2 sm:mt-0">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-12 w-12 sm:h-14 sm:w-14"
+                                        onClick={() => deleteItem(item.id)}
+                                    >
+                                        <Trash2
+                                            size={20}
+                                            className="sm:size-24"
+                                        />
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </div>

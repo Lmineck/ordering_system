@@ -3,7 +3,6 @@
 export interface User {
     id: string;
     userId: string;
-    password: string;
     role: string; // admin | guest | user
     name: string;
     phone: string;

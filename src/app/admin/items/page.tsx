@@ -79,8 +79,8 @@ export default function ItemManagement() {
     return (
         <div className="min-h-screen">
             <div className="max-w-7xl mx-auto px-4 py-6">
-                <h1 className="text-2xl font-bold text-gray-900 mb-6">
-                    상품 관리
+                <h1 className="text-3xl font-bold mb-6 text-center">
+                    품목 관리
                 </h1>
 
                 <div className="bg-white shadow rounded-lg p-4 mb-6">

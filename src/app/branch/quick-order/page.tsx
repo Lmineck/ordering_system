@@ -181,7 +181,7 @@ export default function QuickOrder() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2, duration: 0.4 }}
             >
-                <ScrollArea className="h-full p-4">
+                <ScrollArea className="h-full">
                     <ItemList
                         items={items}
                         onUpdateQuantity={updateItemQuantity}
@@ -198,7 +198,19 @@ export default function QuickOrder() {
                         )}{' '}
                         개 항목
                     </span>
-                    <Button onClick={() => setShowCart(true)}>담기</Button>
+                    <Button
+                        onClick={() => {
+                            if (allCartItems.length === 0) {
+                                alert(
+                                    '담긴 항목이 없습니다. 항목을 추가해주세요.',
+                                );
+                                return;
+                            }
+                            setShowCart(true);
+                        }}
+                    >
+                        담기
+                    </Button>
                 </div>
             </div>
             {showCart && (

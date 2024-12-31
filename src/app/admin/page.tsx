@@ -22,7 +22,7 @@ export default function AdminDashboard() {
                                 variant="outline"
                                 className="w-full h-32 text-lg font-semibold bg-white hover:bg-gray-100"
                             >
-                                상품 관리
+                                품목 관리
                             </Button>
                         </Link>
                         <Link href="/admin/users" className="flex-1">
