@@ -63,7 +63,7 @@ export class ImageUploadService {
      * imgUrl 파일 삭제
      */
     static deleteImage(imgUrl: string): void {
-        const filePath = path.join(process.cwd(), 'uploads', imgUrl);
+        const filePath = path.join(process.cwd(), imgUrl);
         if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath); // 파일 삭제
             console.log(`Image deleted: ${filePath}`);
