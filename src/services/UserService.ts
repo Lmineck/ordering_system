@@ -82,6 +82,17 @@ class UserService extends FirebaseService<User> {
     async register(registerRequest: RegisterRequest): Promise<string> {
         const { userId, password, name, phone, branch } = registerRequest;
 
+        // 같은 branch 이름이 이미 있는지 확인
+        const existingUsersWithBranch = await this.findByField(
+            'branch',
+            branch,
+        );
+        if (existingUsersWithBranch.length > 0) {
+            throw new Error(
+                '이미 같은 지점명이 존재해서 회원가입에 실패했습니다',
+            );
+        }
+
         const now = new Date();
         const formattedTime = format(now, 'yyyyMMddHHmmss');
 
