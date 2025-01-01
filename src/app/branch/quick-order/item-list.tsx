@@ -15,14 +15,20 @@ export default function ItemList({ items, onUpdateQuantity }: ItemListProps) {
                     key={item.id}
                     className="flex items-center space-x-4 bg-white p-4 rounded-lg shadow"
                 >
-                    {/* 이미지 (항상 왼쪽) */}
-                    <Image
-                        src={item.imgUrl || '/svgs/placeholder.svg'}
-                        alt={item.name}
-                        width={80}
-                        height={80}
-                        className="rounded-md object-cover"
-                    />
+                    {/* 고정된 크기의 이미지 */}
+                    <div className="w-20 h-20 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
+                        <Image
+                            src={
+                                item.imgUrl
+                                    ? `/api/images?path=${encodeURIComponent(item.imgUrl.replace('/uploads/', ''))}`
+                                    : '/svgs/placeholder.svg'
+                            }
+                            alt={item.name || 'Placeholder'}
+                            width={80}
+                            height={80}
+                            className="object-cover w-full h-full"
+                        />
+                    </div>
 
                     {/* 오른쪽 내용 */}
                     <div className="flex flex-1 flex-col sm:flex-row justify-between">

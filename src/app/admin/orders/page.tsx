@@ -202,14 +202,6 @@ function OrdersPage() {
                         <DatePicker
                             value={selectedDate}
                             onChange={handleDateChange}
-                            renderInput={(params) => (
-                                <div className="p-4">
-                                    <input
-                                        {...params.inputProps}
-                                        className="w-full p-2 border rounded"
-                                    />
-                                </div>
-                            )}
                         />
                     </LocalizationProvider>
                 </DialogContent>

@@ -31,33 +31,3 @@ export async function DELETE(
         );
     }
 }
-
-// PATCH: 아이템 수정
-export async function PATCH(
-    req: NextRequest,
-    { params }: { params: Promise<{ id: string }> },
-) {
-    try {
-        const { id } = await params;
-        const updates = await req.json();
-
-        if (!id) {
-            return NextResponse.json(
-                { message: 'Item ID is required.' },
-                { status: 400 },
-            );
-        }
-
-        await itemService.updateItem(id, updates);
-        return NextResponse.json(
-            { message: 'Item updated successfully.' },
-            { status: 200 },
-        );
-    } catch (error) {
-        console.error('Error updating item:', error);
-        return NextResponse.json(
-            { message: 'Failed to update item.' },
-            { status: 500 },
-        );
-    }
-}

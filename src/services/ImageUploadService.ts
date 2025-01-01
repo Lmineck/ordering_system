@@ -3,7 +3,8 @@ import path from 'path';
 import { format } from 'date-fns';
 
 export class ImageUploadService {
-    private static baseUploadDir = path.join(process.cwd(), 'public/uploads');
+    // baseUploadDir를 public 외부의 uploads 디렉토리로 변경
+    private static baseUploadDir = path.join(process.cwd(), 'uploads');
 
     /**
      * 파일 저장 디렉토리 초기화
@@ -62,7 +63,7 @@ export class ImageUploadService {
      * imgUrl 파일 삭제
      */
     static deleteImage(imgUrl: string): void {
-        const filePath = path.join(process.cwd(), 'public', imgUrl);
+        const filePath = path.join(process.cwd(), 'uploads', imgUrl);
         if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath); // 파일 삭제
             console.log(`Image deleted: ${filePath}`);

@@ -266,13 +266,6 @@ function BranchOrdersPage() {
                         <DatePicker
                             value={selectedDate}
                             onChange={handleDateChange}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    fullWidth
-                                    className="mt-2"
-                                />
-                            )}
                         />
                     </LocalizationProvider>
                 </DialogContent>

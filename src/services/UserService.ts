@@ -68,6 +68,7 @@ class UserService extends FirebaseService<User> {
         const { userId, password } = loginRequest;
         const user = await this.findOneByField('userId', userId);
         if (user && user.password === password) {
+            user.password = '';
             return user;
         }
         return null;

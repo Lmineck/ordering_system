@@ -153,8 +153,12 @@ export default function ItemList({ categoryName }: ItemListProps) {
                             {/* 이미지 */}
                             <div className="flex items-center justify-center relative w-24 h-24 mr-4">
                                 <Image
-                                    src={item.imgUrl || '/svgs/placeholder.svg'}
-                                    alt={item.name}
+                                    src={
+                                        item.imgUrl
+                                            ? `/api/images?path=${encodeURIComponent(item.imgUrl.replace('/uploads/', ''))}`
+                                            : '/svgs/placeholder.svg'
+                                    }
+                                    alt={item.name || 'Placeholder'}
                                     layout="fill"
                                     objectFit="cover"
                                     className="rounded-md"
