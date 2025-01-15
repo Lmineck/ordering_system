@@ -16,7 +16,7 @@ export function FileUpload({ onFileSelect, resetTrigger }: FileUploadProps) {
             'image/jpeg',
             'image/gif',
         ];
-        const maxFileSize = 2 * 1024 * 1024; // 2MB
+        const maxFileSize = 4 * 1024 * 1024; // 4MB
 
         if (!validTypes.includes(file.type)) {
             alert(
