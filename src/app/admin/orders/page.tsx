@@ -84,6 +84,37 @@ function OrdersPage() {
 
     const handleResetToTotal = () => setSelectedBranch(null);
 
+    const handlePrint = () => {
+        const printContent = document.getElementById('print-section');
+        const printWindow = window.open('', '', 'width=800,height=600');
+
+        if (!printWindow) {
+            console.error(
+                'Unable to open print window. It may be blocked by the browser.',
+            );
+            return;
+        }
+
+        printWindow.document.write(`
+        <html>
+            <head>
+                <title>주문 내역 출력</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    th { background-color: #f4f4f4; }
+                </style>
+            </head>
+            <body>
+                ${printContent?.innerHTML}
+            </body>
+        </html>
+    `);
+        printWindow.document.close();
+        printWindow.print();
+    };
+
     const isEmpty = selectedBranch
         ? Object.keys(
               aggregateItems(
@@ -116,60 +147,76 @@ function OrdersPage() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
         >
-            <Card className="bg-white shadow-lg w-full max-w-xl mx-auto">
-                <CardHeader className="text-center">
-                    <CardTitle className="text-2xl font-semibold">
-                        {selectedBranch
-                            ? `${selectedBranch} 주문 내역`
-                            : '주문 합계'}
-                    </CardTitle>
-                    <div className="text-m text-gray-500">
-                        {format(selectedDate || new Date(), 'yyyy년 MM월 dd일')}
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    {isEmpty ? (
-                        <div className="h-[60vh] flex items-center justify-center text-gray-500">
-                            해당 날짜의 발주내역이 없습니다.
+            <Card className="bg-white shadow-lg w-full max-w-xl mx-auto relative">
+                <div id="print-section">
+                    <CardHeader className="text-center">
+                        <CardTitle className="text-2xl font-semibold">
+                            {selectedBranch
+                                ? `${selectedBranch} 주문 내역`
+                                : '주문 합계'}
+                        </CardTitle>
+                        <div className="text-m text-gray-500">
+                            {format(
+                                selectedDate || new Date(),
+                                'yyyy년 MM월 dd일',
+                            )}
                         </div>
-                    ) : (
-                        <ScrollArea className="h-[60vh]">
-                            <table className="w-full border-collapse">
-                                <thead>
-                                    <tr className="border-b">
-                                        <th className="py-2 text-left">
-                                            품목명
-                                        </th>
-                                        <th className="py-2 text-right">
-                                            수량
-                                        </th>
-                                        <th className="py-2 text-right">
-                                            단위
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {Object.entries(
-                                        displayedAggregatedItems,
-                                    ).map(([name, { quantity, unit }]) => (
-                                        <tr
-                                            key={name}
-                                            className="border-b last:border-b-0"
-                                        >
-                                            <td className="py-3">{name}</td>
-                                            <td className="py-3 text-right">
-                                                {quantity}
-                                            </td>
-                                            <td className="py-3 text-right">
-                                                {unit}
-                                            </td>
+                    </CardHeader>
+                    <CardContent>
+                        {isEmpty ? (
+                            <div className="h-[60vh] flex items-center justify-center text-gray-500">
+                                해당 날짜의 발주내역이 없습니다.
+                            </div>
+                        ) : (
+                            <ScrollArea className="h-[60vh]">
+                                <table className="w-full border-collapse">
+                                    <thead>
+                                        <tr className="border-b">
+                                            <th className="py-2 text-left">
+                                                품목명
+                                            </th>
+                                            <th className="py-2 text-right">
+                                                수량
+                                            </th>
+                                            <th className="py-2 text-right">
+                                                단위
+                                            </th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </ScrollArea>
-                    )}
-                </CardContent>
+                                    </thead>
+                                    <tbody>
+                                        {Object.entries(
+                                            displayedAggregatedItems,
+                                        ).map(([name, { quantity, unit }]) => (
+                                            <tr
+                                                key={name}
+                                                className="border-b last:border-b-0"
+                                            >
+                                                <td className="py-3">{name}</td>
+                                                <td className="py-3 text-right">
+                                                    {quantity}
+                                                </td>
+                                                <td className="py-3 text-right">
+                                                    {unit}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </ScrollArea>
+                        )}
+                    </CardContent>
+                </div>
+                <button
+                    className="absolute top-5 right-5 text-gray-500 hover:text-gray-700"
+                    onClick={handlePrint} // 클릭 이벤트 핸들러 추가
+                    aria-label="Print"
+                >
+                    <img
+                        src="/images/printer.png" // 이미지 경로
+                        alt="프린트하기" // 이미지 대체 텍스트
+                        className="h-8 w-8"
+                    />
+                </button>
                 <div className="text-center py-4 flex space-x-4 px-4">
                     <Button
                         className="w-full h-12 font-semibold bg-blue-600 hover:bg-blue-700 text-white"

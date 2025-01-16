@@ -6,6 +6,7 @@ export interface Order {
     branch: string; // 주문 지점
     orderDate: string; // 주문 날짜
     status: 'pending' | 'confirmed' | 'cancelled' | 'completed'; // 주문 상태
+    requestNote: string; // 주문 날짜
 }
 
 export interface OrderItem {

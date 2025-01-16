@@ -32,6 +32,7 @@ export default function QuickOrder() {
     const [allCartItems, setAllCartItems] = useState<ListItem[]>([]);
     const [showCart, setShowCart] = useState(false);
     const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
+    const [requestNote, setRequestNote] = useState<string>(''); // 요청사항 상태 추가
 
     const fetchAllData = async () => {
         try {
@@ -135,6 +136,7 @@ export default function QuickOrder() {
             orderDate: formattedTime,
             branch: user?.branch ?? 'Unknown Branch',
             status: 'pending',
+            requestNote: requestNote.trim(),
         };
 
         try {
@@ -236,6 +238,18 @@ export default function QuickOrder() {
                         <CartSummary
                             items={allCartItems}
                             onClose={() => setShowCart(false)}
+                        />
+                        <textarea
+                            placeholder="요청사항"
+                            className="w-full mt-4 p-2 border border-gray-300 rounded bg-gray-100 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-hidden"
+                            rows={1}
+                            value={requestNote} // 상태 값 바인딩
+                            onChange={(e) => setRequestNote(e.target.value)} // 상태 업데이트
+                            onInput={(e) => {
+                                const target = e.target as HTMLTextAreaElement;
+                                target.style.height = 'auto';
+                                target.style.height = `${target.scrollHeight}px`;
+                            }}
                         />
                         <Button onClick={placeOrder} className="w-full mt-4">
                             주문하기
