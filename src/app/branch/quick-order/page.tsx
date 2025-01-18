@@ -1,8 +1,10 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 import CategorySelector from './category-selector';
 import ItemList from './item-list';
@@ -12,6 +14,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { Item } from '@/types/item';
 import { Order, OrderItem } from '@/types/order';
 import { format } from 'date-fns';
+import Image from 'next/image';
 import Loading from '@/app/loading';
 
 export interface ListItem extends Item {
@@ -19,6 +22,8 @@ export interface ListItem extends Item {
 }
 
 export default function QuickOrder() {
+    const router = useRouter();
+
     const { user } = useAuthStore();
 
     const [categories, setCategories] = useState<Category[]>([]);
@@ -33,6 +38,7 @@ export default function QuickOrder() {
     const [showCart, setShowCart] = useState(false);
     const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
     const [requestNote, setRequestNote] = useState<string>(''); // 요청사항 상태 추가
+    const [searchTerm, setSearchTerm] = useState<string>('');
 
     const fetchAllData = async () => {
         try {
@@ -51,11 +57,17 @@ export default function QuickOrder() {
                         `Failed to fetch items for ${category.name}`,
                     );
                 const itemsData: ListItem[] = await itemsRes.json();
-                return {
-                    [category.id]: itemsData.map((item) => ({
+
+                // 아이템을 item.index로 오름차순 정렬
+                const sortedItems = itemsData
+                    .sort((a, b) => (a.index ?? 0) - (b.index ?? 0))
+                    .map((item) => ({
                         ...item,
-                        quantity: 0,
-                    })),
+                        quantity: 0, // 수량 초기화
+                    }));
+
+                return {
+                    [category.id]: sortedItems,
                 };
             });
 
@@ -91,6 +103,29 @@ export default function QuickOrder() {
             setItems([]);
         }
     }, [selectedCategory, categoryItems, allCartItems]);
+
+    useEffect(() => {
+        if (selectedCategory && categoryItems[selectedCategory]) {
+            const updatedItems = categoryItems[selectedCategory]
+                .filter((item) =>
+                    item.name.toLowerCase().includes(searchTerm.toLowerCase()),
+                )
+                .map((item) => {
+                    const existingCartItem = allCartItems.find(
+                        (cartItem) => cartItem.id === item.id,
+                    );
+                    return {
+                        ...item,
+                        quantity: existingCartItem
+                            ? existingCartItem.quantity
+                            : 0,
+                    };
+                });
+            setItems(updatedItems);
+        } else {
+            setItems([]);
+        }
+    }, [selectedCategory, categoryItems, allCartItems, searchTerm]);
 
     const updateItemQuantity = (itemId: string, newQuantity: number) => {
         const updatedItems = items.map((item) =>
@@ -151,6 +186,8 @@ export default function QuickOrder() {
             alert('주문이 완료되었습니다!');
             setAllCartItems([]);
             setShowCart(false);
+
+            router.replace('/branch');
         } catch (error) {
             console.error('Error placing order:', error);
             alert('주문 중 오류가 발생했습니다.');
@@ -176,6 +213,37 @@ export default function QuickOrder() {
                     selectedCategory={selectedCategory}
                     onSelectCategory={setSelectedCategory}
                 />
+                <div className="relative mt-2">
+                    {/* SVG 아이콘 */}
+                    <div className="absolute top-1/2 left-3 transform -translate-y-1/2 w-5 h-5">
+                        <Image
+                            src="/svgs/search.svg" // Path to your SVG in the public folder
+                            alt="검색 아이콘"
+                            width={20} // Width of the icon
+                            height={20} // Height of the icon
+                        />
+                    </div>
+
+                    {/* 검색 입력 필드 */}
+                    <Input
+                        type="text"
+                        placeholder="검색어를 입력하세요..."
+                        className="w-full p-2 pl-12 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" // 왼쪽 여백을 충분히 추가
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+
+                    {/* X 버튼 */}
+                    {searchTerm && (
+                        <button
+                            type="button"
+                            className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                            onClick={() => setSearchTerm('')}
+                        >
+                            ×
+                        </button>
+                    )}
+                </div>
             </div>
             <motion.div
                 className="flex-grow relative"
@@ -193,12 +261,7 @@ export default function QuickOrder() {
             <div className="sticky bottom-0 p-4 bg-white border-t mb-0">
                 <div className="flex justify-between items-center">
                     <span className="text-lg font-semibold">
-                        총{' '}
-                        {allCartItems.reduce(
-                            (sum, item) => sum + item.quantity,
-                            0,
-                        )}{' '}
-                        개 항목
+                        총 {allCartItems.length} 개 항목
                     </span>
                     <Button
                         onClick={() => {

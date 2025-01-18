@@ -58,16 +58,40 @@ class OrderService extends FirebaseService<Order> {
                         ),
                 );
 
+                // 최종 주문 아이템 목록록
                 const finalItems = [...updatedItems, ...newItems];
-                const updatedOrderDate = order.orderDate; // 새로운 주문 시간으로 업데이트
 
-                await this.updateByConditions(
-                    filters,
-                    rangeField,
-                    rangeStart,
-                    rangeEnd,
-                    { items: finalItems, orderDate: updatedOrderDate },
-                );
+                // 새로운 주문 시간으로 업데이트
+                const updatedOrderDate = order.orderDate;
+
+                // 요청 사항 합산
+                if (order.requestNote != null) {
+                    const combinedRequestNote = existingOrder.requestNote
+                        ? `${existingOrder.requestNote}\n${order.requestNote}`
+                        : order.requestNote;
+
+                    // 기존 요청 사항에 새 요청 사항 추가
+                    await this.updateByConditions(
+                        filters,
+                        rangeField,
+                        rangeStart,
+                        rangeEnd,
+                        {
+                            items: finalItems,
+                            orderDate: updatedOrderDate,
+                            requestNote: combinedRequestNote,
+                        },
+                    );
+                } else {
+                    // 요청 사항이 없는 경우 기존대로 업데이트
+                    await this.updateByConditions(
+                        filters,
+                        rangeField,
+                        rangeStart,
+                        rangeEnd,
+                        { items: finalItems, orderDate: updatedOrderDate },
+                    );
+                }
 
                 return existingOrder.id;
             } else {

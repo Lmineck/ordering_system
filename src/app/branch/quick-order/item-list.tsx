@@ -47,13 +47,16 @@ export default function ItemList({ items, onUpdateQuantity }: ItemListProps) {
                                 onClick={() =>
                                     onUpdateQuantity(
                                         item.id,
-                                        Math.max(0, item.quantity - 1),
+                                        Math.max(
+                                            0,
+                                            item.quantity - (item.amount ?? 1),
+                                        ),
                                     )
                                 }
                             >
                                 -
                             </Button>
-                            <span className="text-center text-sm sm:text-base w-6 sm:w-8">
+                            <span className="text-center text-sm sm:text-base w-6 sm:w-8 whitespace-nowrap overflow-hidden">
                                 {item.quantity}
                             </span>
                             <Button
@@ -61,7 +64,10 @@ export default function ItemList({ items, onUpdateQuantity }: ItemListProps) {
                                 size="icon"
                                 className="h-8 w-8 sm:h-10 sm:w-10"
                                 onClick={() =>
-                                    onUpdateQuantity(item.id, item.quantity + 1)
+                                    onUpdateQuantity(
+                                        item.id,
+                                        item.quantity + (item.amount ?? 1),
+                                    )
                                 }
                             >
                                 +

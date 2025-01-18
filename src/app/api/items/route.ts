@@ -32,10 +32,10 @@ export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
 
-        const { name, imgUrl, category, unit } = body;
+        const { index, name, imgUrl, category, unit, amount } = body;
 
         // 필수 필드 확인
-        if (!name || !category || !unit) {
+        if (!name || !category || !unit || !amount || !index) {
             return NextResponse.json(
                 { message: 'Missing required fields.' },
                 { status: 400 },
@@ -47,10 +47,12 @@ export async function POST(req: NextRequest) {
 
         // 아이템 추가
         const newItemId = await itemService.addItem({
+            index,
             name,
             imgUrl: validImgUrl,
             category,
             unit,
+            amount,
         });
         return NextResponse.json(
             { id: newItemId, message: 'Item added successfully.' },

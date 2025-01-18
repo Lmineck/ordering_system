@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { FileUpload } from '@/components/ui/file-upload';
 import Image from 'next/image';
 import { Item } from '@/types/item';
-import { Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 
 interface ItemListProps {
     categoryId: string;
@@ -23,19 +23,26 @@ export default function ItemList({ categoryName }: ItemListProps) {
         previewUrl: null,
     });
     const [newItem, setNewItem] = useState<Omit<Item, 'id'>>({
+        index: items.length + 1,
         name: '',
         imgUrl: '',
         category: categoryName,
         unit: '',
+        amount: 1,
     });
     const [resetFileUpload, setResetFileUpload] = useState(false);
 
+    // 아이템 가져오기
     const fetchItems = useCallback(async () => {
         try {
             const response = await fetch(`/api/items?category=${categoryName}`);
             if (!response.ok) throw new Error('Failed to fetch items');
             const data: Item[] = await response.json();
-            setItems(data);
+
+            // item.index를 기준으로 오름차순 정렬
+            const sortedData = data.sort((a, b) => a.index - b.index);
+
+            setItems(sortedData);
         } catch (error) {
             console.error('Error fetching items:', error);
         }
@@ -49,6 +56,10 @@ export default function ItemList({ categoryName }: ItemListProps) {
         }
         if (!newItem.unit.trim()) {
             alert('단위를 입력해주세요.');
+            return;
+        }
+        if (newItem.amount == null) {
+            alert('단위량을 입력해주세요.');
             return;
         }
 
@@ -82,10 +93,12 @@ export default function ItemList({ categoryName }: ItemListProps) {
 
             // 상태 초기화
             setNewItem({
+                index: items.length + 1,
                 name: '',
                 imgUrl: '',
                 category: categoryName,
                 unit: '',
+                amount: 1,
             });
             setSelectedFile({ file: null, previewUrl: null }); // 파일 상태 초기화
             setResetFileUpload(true); // FileUpload 초기화
@@ -136,6 +149,41 @@ export default function ItemList({ categoryName }: ItemListProps) {
         }
     };
 
+    // 순서 변경 핸들링 함수
+    const handleMoveUp = async (itemId: string) => {
+        try {
+            const response = await fetch(
+                `/api/items/move-up?itemId=${itemId}&categoryName=${encodeURIComponent(
+                    categoryName,
+                )}`,
+                {
+                    method: 'GET',
+                },
+            );
+            if (!response.ok) throw new Error('Failed to move item up');
+            await fetchItems(); // 변경 후 목록 다시 로드
+        } catch (error) {
+            console.error('Error moving item up:', error);
+        }
+    };
+
+    const handleMoveDown = async (itemId: string) => {
+        try {
+            const response = await fetch(
+                `/api/items/move-down?itemId=${itemId}&categoryName=${encodeURIComponent(
+                    categoryName,
+                )}`,
+                {
+                    method: 'GET',
+                },
+            );
+            if (!response.ok) throw new Error('Failed to move item down');
+            await fetchItems(); // 변경 후 목록 다시 로드
+        } catch (error) {
+            console.error('Error moving item down:', error);
+        }
+    };
+
     useEffect(() => {
         if (categoryName) fetchItems();
     }, [fetchItems, categoryName]);
@@ -150,6 +198,28 @@ export default function ItemList({ categoryName }: ItemListProps) {
                 {items.map((item) => (
                     <div key={item.id} className="bg-gray-50 rounded-lg p-4">
                         <div className="flex items-center">
+                            {/* 순서 변경 버튼 */}
+                            <div className="flex flex-col justify-center items-center mr-4">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="mb-1 p-1"
+                                    onClick={() => handleMoveUp(item.id)}
+                                    disabled={item.index === 1} // 첫 번째 아이템은 위로 이동 불가
+                                >
+                                    <ChevronUp size={16} />
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="mt-1 p-1"
+                                    onClick={() => handleMoveDown(item.id)}
+                                    disabled={item.index === items.length} // 마지막 아이템은 아래로 이동 불가
+                                >
+                                    <ChevronDown size={16} />
+                                </Button>
+                            </div>
+
                             {/* 이미지 */}
                             <div className="flex items-center justify-center relative w-24 h-24 mr-4">
                                 <Image
@@ -172,7 +242,9 @@ export default function ItemList({ categoryName }: ItemListProps) {
                                     <h3 className="font-semibold text-base sm:text-lg">
                                         {item.name}
                                     </h3>
-                                    <p className="text-gray-600">{item.unit}</p>
+                                    <p className="text-gray-600">
+                                        {item.amount} {item.unit}
+                                    </p>
                                 </div>
 
                                 {/* 버튼 */}
@@ -207,6 +279,21 @@ export default function ItemList({ categoryName }: ItemListProps) {
                             setNewItem({
                                 ...newItem,
                                 name: e.target.value,
+                            })
+                        }
+                    />
+                    <Input
+                        type="number"
+                        placeholder="단위량"
+                        value={newItem.amount || ''}
+                        onInput={(e) => {
+                            const input = e.target as HTMLInputElement;
+                            input.value = input.value.replace(/[^0-9.]/g, ''); // 숫자와 소수점만 허용
+                        }}
+                        onChange={(e) =>
+                            setNewItem({
+                                ...newItem,
+                                amount: parseFloat(e.target.value),
                             })
                         }
                     />
