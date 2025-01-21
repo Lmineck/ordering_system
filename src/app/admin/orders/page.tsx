@@ -100,10 +100,25 @@ function OrdersPage() {
             <head>
                 <title>주문 내역 출력</title>
                 <style>
-                    body { font-family: Arial, sans-serif; margin: 20px; }
-                    table { width: 100%; border-collapse: collapse; }
-                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                    th { background-color: #f4f4f4; }
+                    body { 
+                        font-family: Arial, sans-serif; 
+                        margin: 20px; 
+                        font-size: 12px; /* 글자 크기 줄임 */
+                    }
+                    table { 
+                        width: 100%; 
+                        border-collapse: collapse; 
+                        font-size: 12px; /* 테이블 글자 크기 줄임 */
+                    }
+                    th, td { 
+                        border: 1px solid #ddd; 
+                        padding: 4px; /* 패딩을 줄여 셀 간격 촘촘하게 */
+                        text-align: left; 
+                    }
+                    th { 
+                        background-color: #f4f4f4; 
+                        font-size: 13px; /* 헤더는 약간 더 큰 글자 크기 */
+                    }
                 </style>
             </head>
             <body>
@@ -168,9 +183,9 @@ function OrdersPage() {
                                 해당 날짜의 발주내역이 없습니다.
                             </div>
                         ) : (
-                            <ScrollArea className="h-[60vh]">
+                            <ScrollArea className="h-[60vh] overflow-y-auto">
                                 <table className="w-full border-collapse">
-                                    <thead>
+                                    <thead className="bg-white sticky top-0 shadow">
                                         <tr className="border-b">
                                             <th className="py-2 text-left">
                                                 품목명
@@ -191,11 +206,11 @@ function OrdersPage() {
                                                 key={name}
                                                 className="border-b last:border-b-0"
                                             >
-                                                <td className="py-3">{name}</td>
-                                                <td className="py-3 text-right">
+                                                <td className="py-2">{name}</td>
+                                                <td className="py-2 text-right">
                                                     {quantity}
                                                 </td>
-                                                <td className="py-3 text-right">
+                                                <td className="py-2 text-right">
                                                     {unit}
                                                 </td>
                                             </tr>
@@ -204,6 +219,37 @@ function OrdersPage() {
                                 </table>
                             </ScrollArea>
                         )}
+                        <div className="bg-gray-100 p-4 mt-4 text-gray-600 text-sm">
+                            <h3 className="font-semibold mb-4">[ 요청사항 ]</h3>
+                            {selectedBranch
+                                ? // 특정 지점의 요청사항 표시
+                                  branchOrders
+                                      .filter(
+                                          (order) =>
+                                              order.branch === selectedBranch,
+                                      )
+                                      .map((order, idx) => (
+                                          <div key={idx} className="mb-2">
+                                              <span className="font-semibold">
+                                                  {order.branch}
+                                              </span>{' '}
+                                              -{' '}
+                                              {order.requestNote ||
+                                                  '요청사항이 없습니다.'}
+                                          </div>
+                                      ))
+                                : // 모든 지점의 요청사항 표시
+                                  branchOrders.map((order, idx) => (
+                                      <div key={idx} className="mb-2">
+                                          <span className="font-semibold">
+                                              {order.branch}
+                                          </span>{' '}
+                                          -{' '}
+                                          {order.requestNote ||
+                                              '요청사항이 없습니다.'}
+                                      </div>
+                                  ))}
+                        </div>
                     </CardContent>
                 </div>
                 <button

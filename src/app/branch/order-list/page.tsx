@@ -115,11 +115,11 @@ function BranchOrdersPage() {
             );
 
             // Firestore로 보낼 데이터에서 id 필드를 제외
-            const { ...orderData } = order;
+            const { id, ...orderDataWithoutId } = order;
 
             // 업데이트 요청
             await orderService.update(orderId, {
-                ...orderData,
+                ...orderDataWithoutId,
                 items: updatedItems,
             });
 
@@ -181,9 +181,9 @@ function BranchOrdersPage() {
                             해당 날짜의 주문 내역이 없습니다.
                         </div>
                     ) : (
-                        <ScrollArea className="h-[60vh]">
+                        <ScrollArea className="h-[60vh] overflow-y-auto">
                             <table className="w-full border-collapse">
-                                <thead>
+                                <thead className="bg-white sticky top-0 shadow z-10">
                                     <tr className="border-b">
                                         <th className="py-2 text-left">
                                             품목명
@@ -206,18 +206,18 @@ function BranchOrdersPage() {
                                                 key={`${order.id}-${idx}`}
                                                 className="border-b last:border-b-0"
                                             >
-                                                <td className="py-3">
+                                                <td className="py-2">
                                                     {item.name}
                                                 </td>
-                                                <td className="py-3 text-right">
+                                                <td className="py-2 text-right">
                                                     {item.quantity}
                                                 </td>
-                                                <td className="py-3 text-right">
+                                                <td className="py-2 text-right">
                                                     {item.unit}
                                                 </td>
-                                                <td className="py-3 text-right flex justify-end space-x-2">
+                                                <td className="py-2 text-right flex justify-end space-x-2">
                                                     <Button
-                                                        className="text-xs text-white bg-green-500 hover:bg-green-600"
+                                                        className="text-xs text-white bg-green-500 hover:bg-green-600 py-1 px-2 h-6"
                                                         disabled={!isToday}
                                                         onClick={() =>
                                                             handleEditClick(
@@ -229,7 +229,7 @@ function BranchOrdersPage() {
                                                         수정
                                                     </Button>
                                                     <Button
-                                                        className="text-xs text-white bg-red-500 hover:bg-red-600"
+                                                        className="text-xs text-white bg-red-500 hover:bg-red-600 py-1 px-2 h-6"
                                                         disabled={!isToday}
                                                         onClick={() =>
                                                             handleDeleteClick(
@@ -246,6 +246,80 @@ function BranchOrdersPage() {
                                     )}
                                 </tbody>
                             </table>
+                            {/* 요청사항 영역 */}
+                            <div className="bg-gray-100 p-4 mt-4 text-gray-600 text-sm">
+                                {orders.map((order, idx) => (
+                                    <div
+                                        key={idx}
+                                    >
+                                        <TextField
+                                            fullWidth
+                                            variant="outlined"
+                                            size="small"
+                                            label="요청사항"
+                                            multiline // 다중 줄 입력 활성화
+                                            minRows={1} // 최소 줄 수
+                                            maxRows={5} // 최대 줄 수
+                                            value={order.requestNote || ''}
+                                            onChange={(e) =>
+                                                setOrders((prevOrders) =>
+                                                    prevOrders.map((o, i) =>
+                                                        i === idx
+                                                            ? {
+                                                                  ...o,
+                                                                  requestNote:
+                                                                      e.target
+                                                                          .value,
+                                                              }
+                                                            : o,
+                                                    ),
+                                                )
+                                            }
+                                            InputProps={{
+                                                endAdornment: (
+                                                    <Button
+                                                        className="text-xs text-black border border-black hover:bg-gray-100 hover:text-gray-700 py-1 px-4 h-6 flex items-center justify-center whitespace-nowrap transition-colors duration-200"
+                                                        style={{
+                                                            lineHeight: '1',
+                                                            display:
+                                                                'inline-flex',
+                                                            alignItems:
+                                                                'center',
+                                                            justifyContent:
+                                                                'center',
+                                                        }}
+                                                        onClick={async () => {
+                                                            try {
+                                                                // Firestore 업데이트
+                                                                await orderService.update(
+                                                                    order.id,
+                                                                    {
+                                                                        requestNote:
+                                                                            order.requestNote,
+                                                                    },
+                                                                );
+                                                                setSnackbarMessage(
+                                                                    '요청사항이 저장되었습니다.',
+                                                                );
+                                                            } catch (error) {
+                                                                console.error(
+                                                                    '요청사항 저장 중 오류 발생:',
+                                                                    error,
+                                                                );
+                                                                alert(
+                                                                    '요청사항을 저장하는 중 문제가 발생했습니다.',
+                                                                );
+                                                            }
+                                                        }}
+                                                    >
+                                                        저장
+                                                    </Button>
+                                                ),
+                                            }}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
                         </ScrollArea>
                     )}
                 </CardContent>

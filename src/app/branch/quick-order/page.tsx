@@ -292,28 +292,35 @@ export default function QuickOrder() {
                     }}
                 >
                     <motion.div
-                        className="bg-white rounded-t-xl w-full max-w-md p-4"
+                        className="bg-white rounded-t-xl w-full max-w-md p-4 flex flex-col"
                         initial={{ y: '100%' }}
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{ type: 'spring', stiffness: 300 }}
                     >
-                        <CartSummary
-                            items={allCartItems}
-                            onClose={() => setShowCart(false)}
-                        />
+                        {/* 스크롤 가능한 컨텐츠 영역 */}
+                        <div className="flex-1 overflow-y-auto max-h-[70vh]">
+                            <CartSummary
+                                items={allCartItems}
+                                onClose={() => setShowCart(false)}
+                            />
+                        </div>
+
+                        {/* 요청사항 텍스트 영역 */}
                         <textarea
                             placeholder="요청사항"
                             className="w-full mt-4 p-2 border border-gray-300 rounded bg-gray-100 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-hidden"
                             rows={1}
-                            value={requestNote} // 상태 값 바인딩
-                            onChange={(e) => setRequestNote(e.target.value)} // 상태 업데이트
+                            value={requestNote}
+                            onChange={(e) => setRequestNote(e.target.value)}
                             onInput={(e) => {
                                 const target = e.target as HTMLTextAreaElement;
                                 target.style.height = 'auto';
                                 target.style.height = `${target.scrollHeight}px`;
                             }}
                         />
+
+                        {/* 주문하기 버튼 */}
                         <Button onClick={placeOrder} className="w-full mt-4">
                             주문하기
                         </Button>
