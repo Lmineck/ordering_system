@@ -252,6 +252,200 @@ function OrdersPage() {
                         </div>
                     </CardContent>
                 </div>
+
+                <button
+                    className="absolute top-5 left-5 text-gray-500 hover:text-gray-700"
+                    onClick={() => {
+                        const statWindow = window.open(
+                            '',
+                            '',
+                            'width=auto,height=auto',
+                        );
+                        if (!statWindow) {
+                            console.error(
+                                'Unable to open stat window. It may be blocked by the browser.',
+                            );
+                            return;
+                        }
+
+                        // 데이터 필터링: 모든 고기와 야채 아이템을 포함하도록 데이터 준비
+                        const allItems = { 고기: new Set(), 야채: new Set() };
+                        branchOrders.forEach((order) => {
+                            order.items.forEach((item) => {
+                                if (
+                                    item.category === '고기' ||
+                                    item.category === '야채'
+                                ) {
+                                    allItems[item.category].add(item.name);
+                                }
+                            });
+                        });
+
+                        const allMeatItems = Array.from(allItems['고기']);
+                        const allVegetableItems = Array.from(allItems['야채']);
+
+                        // 각 지점별로 고기와 야채 아이템의 수량 정리
+                        const branchData = branchOrders.reduce(
+                            (result, order) => {
+                                if (!result[order.branch]) {
+                                    result[order.branch] = {
+                                        고기: allMeatItems.reduce(
+                                            (acc, item) => {
+                                                acc[item] = 0;
+                                                return acc;
+                                            },
+                                            {},
+                                        ),
+                                        야채: allVegetableItems.reduce(
+                                            (acc, item) => {
+                                                acc[item] = 0;
+                                                return acc;
+                                            },
+                                            {},
+                                        ),
+                                    };
+                                }
+
+                                order.items.forEach((item) => {
+                                    if (
+                                        item.category === '고기' ||
+                                        item.category === '야채'
+                                    ) {
+                                        result[order.branch][item.category][
+                                            item.name
+                                        ] += item.quantity;
+                                    }
+                                });
+
+                                return result;
+                            },
+                            {},
+                        );
+
+                        // 테이블 HTML 생성
+                        const tableHeader = `
+            <tr>
+                <th>지점명</th>
+                ${allMeatItems.map((item) => `<th>${item}</th>`).join('')}
+                ${allVegetableItems.map((item) => `<th>${item}</th>`).join('')}
+            </tr>
+        `;
+
+                        const tableRows = Object.entries(branchData)
+                            .map(([branch, categories]) => {
+                                const meatCells = allMeatItems
+                                    .map(
+                                        (item) =>
+                                            `<td>${categories['고기'][item] || 0}</td>`,
+                                    )
+                                    .join('');
+                                const vegetableCells = allVegetableItems
+                                    .map(
+                                        (item) =>
+                                            `<td>${categories['야채'][item] || 0}</td>`,
+                                    )
+                                    .join('');
+
+                                return `
+                    <tr>
+                        <td>${branch}</td>
+                        ${meatCells}
+                        ${vegetableCells}
+                    </tr>
+                `;
+                            })
+                            .join('');
+
+                        statWindow.document.write(`
+        <html>
+            <head>
+                <title>지점별 통계</title>
+                <style>
+                    body {
+                        margin: 0;
+                        padding: 0;
+                        background-color: white;
+                        font-family: Arial, sans-serif;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                    }
+                    .container {
+                        padding: 20px;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        width: 100%;
+                        box-sizing: border-box;
+                    }
+                    table {
+                        width: 100%;
+                        max-width: 100%;
+                        border-collapse: collapse;
+                        text-align: center;
+                        font-size: 10px;
+                    }
+                    th, td {
+                        border: 1px solid #ddd;
+                        padding: 4px;
+                    }
+                    th {
+                        background-color: #f4f4f4;
+                    }
+                    .print-button {
+                        margin-top: 10px;
+                        background: none;
+                        border: none;
+                        color: #007BFF;
+                        cursor: pointer;
+                        font-size: 12px;
+                        text-decoration: underline;
+                        align-self: flex-end;
+                    }
+                    .print-button:hover {
+                        color: #0056b3;
+                    }
+                    @media print {
+                        @page {
+                            size: landscape;
+                        }
+                        body {
+                            margin: 0;
+                            padding: 0;
+                        }
+                        .print-button {
+                            display: none;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1 style="font-size: 14px;">지점별 통계</h1>
+                    <table>
+                        <thead>
+                            ${tableHeader}
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
+                    <button class="print-button" onclick="window.print()">출력하기</button>
+                </div>
+            </body>
+        </html>
+        `);
+                        statWindow.document.close();
+                    }}
+                    aria-label="Statistics"
+                >
+                    <img
+                        src="/images/list.png"
+                        alt="지점별통계"
+                        className="h-8 w-8"
+                    />
+                </button>
+
                 <button
                     className="absolute top-5 right-5 text-gray-500 hover:text-gray-700"
                     onClick={handlePrint} // 클릭 이벤트 핸들러 추가
