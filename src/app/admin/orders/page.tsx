@@ -186,35 +186,35 @@ function OrdersPage() {
                             <ScrollArea className="h-[60vh] overflow-y-auto">
                                 <table className="w-full border-collapse">
                                     <thead className="bg-white sticky top-0 shadow">
-                                        <tr className="border-b">
-                                            <th className="py-2 text-left">
-                                                품목명
-                                            </th>
-                                            <th className="py-2 text-right">
-                                                수량
-                                            </th>
-                                            <th className="py-2 text-right">
-                                                단위
-                                            </th>
-                                        </tr>
+                                    <tr className="border-b">
+                                        <th className="py-2 text-left">
+                                            품목명
+                                        </th>
+                                        <th className="py-2 text-right">
+                                            수량
+                                        </th>
+                                        <th className="py-2 text-right">
+                                            단위
+                                        </th>
+                                    </tr>
                                     </thead>
                                     <tbody>
-                                        {Object.entries(
-                                            displayedAggregatedItems,
-                                        ).map(([name, { quantity, unit }]) => (
-                                            <tr
-                                                key={name}
-                                                className="border-b last:border-b-0"
-                                            >
-                                                <td className="py-2">{name}</td>
-                                                <td className="py-2 text-right">
-                                                    {quantity}
-                                                </td>
-                                                <td className="py-2 text-right">
-                                                    {unit}
-                                                </td>
-                                            </tr>
-                                        ))}
+                                    {Object.entries(
+                                        displayedAggregatedItems,
+                                    ).map(([name, {quantity, unit}]) => (
+                                        <tr
+                                            key={name}
+                                            className="border-b last:border-b-0"
+                                        >
+                                            <td className="py-2">{name}</td>
+                                            <td className="py-2 text-right">
+                                                {quantity}
+                                            </td>
+                                            <td className="py-2 text-right">
+                                                {unit}
+                                            </td>
+                                        </tr>
+                                    ))}
                                     </tbody>
                                 </table>
                             </ScrollArea>
@@ -223,32 +223,32 @@ function OrdersPage() {
                             <h3 className="font-semibold mb-4">[ 요청사항 ]</h3>
                             {selectedBranch
                                 ? // 특정 지점의 요청사항 표시
-                                  branchOrders
-                                      .filter(
-                                          (order) =>
-                                              order.branch === selectedBranch,
-                                      )
-                                      .map((order, idx) => (
-                                          <div key={idx} className="mb-2">
+                                branchOrders
+                                    .filter(
+                                        (order) =>
+                                            order.branch === selectedBranch,
+                                    )
+                                    .map((order, idx) => (
+                                        <div key={idx} className="mb-2">
                                               <span className="font-semibold">
                                                   {order.branch}
                                               </span>{' '}
-                                              -{' '}
-                                              {order.requestNote ||
-                                                  '요청사항이 없습니다.'}
-                                          </div>
-                                      ))
+                                            -{' '}
+                                            {order.requestNote ||
+                                                '요청사항이 없습니다.'}
+                                        </div>
+                                    ))
                                 : // 모든 지점의 요청사항 표시
-                                  branchOrders.map((order, idx) => (
-                                      <div key={idx} className="mb-2">
+                                branchOrders.map((order, idx) => (
+                                    <div key={idx} className="mb-2">
                                           <span className="font-semibold">
                                               {order.branch}
                                           </span>{' '}
-                                          -{' '}
-                                          {order.requestNote ||
-                                              '요청사항이 없습니다.'}
-                                      </div>
-                                  ))}
+                                        -{' '}
+                                        {order.requestNote ||
+                                            '요청사항이 없습니다.'}
+                                    </div>
+                                ))}
                         </div>
                     </CardContent>
                 </div>
@@ -256,11 +256,7 @@ function OrdersPage() {
                 <button
                     className="absolute top-5 left-5 text-gray-500 hover:text-gray-700"
                     onClick={() => {
-                        const statWindow = window.open(
-                            '',
-                            '',
-                            'width=auto,height=auto',
-                        );
+                        const statWindow = window.open('', '', 'width=auto,height=auto');
                         if (!statWindow) {
                             console.error(
                                 'Unable to open stat window. It may be blocked by the browser.',
@@ -269,58 +265,54 @@ function OrdersPage() {
                         }
 
                         // 데이터 필터링: 모든 고기와 야채 아이템을 포함하도록 데이터 준비
-                        const allItems = { 고기: new Set(), 야채: new Set() };
+                        const allItems: { 고기: Set<string>; 야채: Set<string> } = {고기: new Set(), 야채: new Set()};
+
                         branchOrders.forEach((order) => {
                             order.items.forEach((item) => {
-                                if (
-                                    item.category === '고기' ||
-                                    item.category === '야채'
-                                ) {
-                                    allItems[item.category].add(item.name);
+                                if (item.category === '고기' || item.category === '야채') {
+                                    allItems[item.category].add(`${item.name} (${item.unit})`);
                                 }
                             });
                         });
 
-                        const allMeatItems = Array.from(allItems['고기']);
-                        const allVegetableItems = Array.from(allItems['야채']);
+                        const allMeatItems: string[] = Array.from(allItems['고기']);
+                        const allVegetableItems: string[] = Array.from(allItems['야채']);
 
-                        // 각 지점별로 고기와 야채 아이템의 수량 정리
-                        const branchData = branchOrders.reduce(
-                            (result, order) => {
-                                if (!result[order.branch]) {
-                                    result[order.branch] = {
-                                        고기: allMeatItems.reduce(
-                                            (acc, item) => {
-                                                acc[item] = 0;
-                                                return acc;
-                                            },
-                                            {},
-                                        ),
-                                        야채: allVegetableItems.reduce(
-                                            (acc, item) => {
-                                                acc[item] = 0;
-                                                return acc;
-                                            },
-                                            {},
-                                        ),
-                                    };
+                        const branchData = branchOrders.reduce<
+                            Record<string, {
+                                고기: Record<string, { quantity: number; unit: string }>;
+                                야채: Record<string, { quantity: number; unit: string }>
+                            }>
+                        >((result, order) => {
+                            if (!result[order.branch]) {
+                                result[order.branch] = {
+                                    고기: allMeatItems.reduce<Record<string, {
+                                        quantity: number;
+                                        unit: string
+                                    }>>((acc, item) => {
+                                        acc[item] = {quantity: 0, unit: ''};
+                                        return acc;
+                                    }, {}),
+                                    야채: allVegetableItems.reduce<Record<string, {
+                                        quantity: number;
+                                        unit: string
+                                    }>>((acc, item) => {
+                                        acc[item] = {quantity: 0, unit: ''};
+                                        return acc;
+                                    }, {}),
+                                };
+                            }
+
+                            order.items.forEach((item) => {
+                                if (item.category === '고기' || item.category === '야채') {
+                                    const key = `${item.name} (${item.unit})`;
+                                    result[order.branch][item.category][key].quantity += item.quantity;
+                                    result[order.branch][item.category][key].unit = item.unit;
                                 }
+                            });
 
-                                order.items.forEach((item) => {
-                                    if (
-                                        item.category === '고기' ||
-                                        item.category === '야채'
-                                    ) {
-                                        result[order.branch][item.category][
-                                            item.name
-                                        ] += item.quantity;
-                                    }
-                                });
-
-                                return result;
-                            },
-                            {},
-                        );
+                            return result;
+                        }, {});
 
                         // 테이블 HTML 생성
                         const tableHeader = `
@@ -336,13 +328,13 @@ function OrdersPage() {
                                 const meatCells = allMeatItems
                                     .map(
                                         (item) =>
-                                            `<td>${categories['고기'][item] || 0}</td>`,
+                                            `<td>${categories['고기'][item]?.quantity || 0}</td>`
                                     )
                                     .join('');
                                 const vegetableCells = allVegetableItems
                                     .map(
                                         (item) =>
-                                            `<td>${categories['야채'][item] || 0}</td>`,
+                                            `<td>${categories['야채'][item]?.quantity || 0}</td>`
                                     )
                                     .join('');
 
@@ -514,7 +506,7 @@ function OrdersPage() {
                                 <ListItemButton
                                     onClick={() => handleBranchClick(branch)}
                                 >
-                                    <ListItemText primary={branch} />
+                                    <ListItemText primary={branch}/>
                                 </ListItemButton>
                             </ListItem>
                         ))}
